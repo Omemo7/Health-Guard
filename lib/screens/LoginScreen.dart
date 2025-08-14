@@ -6,6 +6,8 @@ import 'package:health_guard_flutter/screens/FamilyMemberScreen.dart';
 import 'PatientScreen.dart'; // Make sure this path is correct
 // If you have a RegisterScreen, keep that import as well
 import 'RegisterScreen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -147,10 +149,24 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Text(
-                'Welcome Back!',
-                style: Theme.of(context).textTheme.headlineMedium,
-                textAlign: TextAlign.center,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    'assets/icons/health-insurance.svg',
+                    width: 40.0,
+                    height: 40.0,
+                    colorFilter: ColorFilter.mode(
+                      Theme.of(context).colorScheme.primary,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  const SizedBox(width: 8.0), // Spacing between icon and text
+                  Text(
+                    'Welcome!!',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ],
               ),
               const SizedBox(height: 24.0),
               TextFormField(
@@ -193,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: const Text(
-                    'new user?',
+                    'New user? Register',
                   ),
                 ),
               ),

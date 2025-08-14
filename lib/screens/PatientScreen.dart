@@ -3,24 +3,12 @@
 import 'package:flutter/material.dart';
 import 'dart:math'; // For random data generation
 
-// Import centralized models and widgets
+import '../widgets/app_drawer.dart';
+import '../models/user_roles.dart';
 import '../models/health_models.dart';
 import '../widgets/charts/overall_health_chart_widget.dart';
 import '../widgets/charts/vital_chart_widget.dart';
-import '../screens/medication_reminder_screen.dart';
-import '../screens/link_doctor_screen.dart';
-import '../screens/manage_family_members_screen.dart';
-import '../screens/manage_vitals_screen.dart';
 
-// --- (Keep your placeholder screens like PatientProfileScreen, AppSettingsScreen, AddFamilyMemberScreen etc. and their imports) ---
-// Example: (Ensure these are correctly imported or defined)
-// import 'patient_profile_screen.dart';
-// import 'app_settings_screen.dart';
-// import 'add_family_member_screen.dart';
-
-// import 'set_vitals_screen.dart';
-
-// Dummy placeholder screens (if not imported from separate files)
 class PatientProfileScreen extends StatelessWidget { const PatientProfileScreen({super.key}); @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('My Profile')), body: const Center(child: Text('Patient Profile Screen - TODO'))); }
 class AppSettingsScreen extends StatelessWidget { const AppSettingsScreen({super.key}); @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Settings')), body: const Center(child: Text('App Settings Screen - TODO'))); }
 
@@ -117,28 +105,20 @@ class _PatientScreenState extends State<PatientScreen> {
     final Color primaryColor = Theme.of(context).colorScheme.primary;
     final Color secondaryColor = Theme.of(context).colorScheme.secondary;
     final TextTheme textTheme = Theme.of(context).textTheme;
-
+    final String _patientName = "Patient";
+    final String _patientEmail = "Patient@healthguard.com";
+    final String? _profilePic = null;
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Dashboard'),
         backgroundColor: primaryColor,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(color: primaryColor),
-              child: Text('Health Guard', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontSize: 24)),
-            ),
-            ListTile(leading: const Icon(Icons.dashboard_outlined), title: const Text('Dashboard'), onTap: () => Navigator.pop(context)),
-            ListTile(leading: const Icon(Icons.person_outline), title: const Text('My Profile'), onTap: () => _navigateTo(context, const PatientProfileScreen())),
-            ListTile(leading: const Icon(Icons.settings_outlined), title: const Text('Settings'), onTap: () => _navigateTo(context, const AppSettingsScreen())),
-            const Divider(),
-            ListTile(leading: const Icon(Icons.logout), title: const Text('Logout'), onTap: () => _logout(context)),
-          ],
-        ),
+      drawer: AppDrawer(
+        currentUserRole: UserRole.patient, // <-- Set the role to admin
+        userName: _patientName,
+        userEmail: _patientEmail,
+        userProfileImageUrl: _profilePic,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -192,41 +172,6 @@ class _PatientScreenState extends State<PatientScreen> {
             }).toList(),
             const SizedBox(height: 16.0), // Space before action buttons
 
-            // --- Action Buttons ---
-            Padding(
-              padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
-              child: Text("Quick Actions", style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-            ),
-            _buildActionButton(
-              context,
-              icon: Icons.group_add_outlined,
-              label: 'Manage Family Members',
-              onTap: () => _navigateWithoutClosingDrawer(context, const ManageFamilyMembersScreen()),
-            ),
-            const SizedBox(height: 12.0),
-            _buildActionButton(
-              context,
-              icon: Icons.medical_services_outlined,
-              label: 'Link to Doctor',
-              onTap: () => _navigateWithoutClosingDrawer(context, const LinkDoctorScreen()),
-            ),
-            const SizedBox(height: 12.0),
-            _buildActionButton(
-              context,
-              icon: Icons.monitor_heart_outlined,
-              label: 'Manage Vitals',
-              onTap: () => _navigateWithoutClosingDrawer(context, const ManageVitalsScreen()),
-            ),
-
-            const SizedBox(height: 12.0),
-            _buildActionButton(
-              context,
-              icon: Icons.alarm_add_outlined, // Or Icons.medication_outlined
-              label: 'Medication Reminders',
-              onTap: () => _navigateWithoutClosingDrawer(context, const MedicationReminderScreen()),
-            ),
-
-
             const SizedBox(height: 24.0),
           ],
         ),
@@ -234,21 +179,4 @@ class _PatientScreenState extends State<PatientScreen> {
     );
   }
 
-  // Helper widget for action buttons
-  Widget _buildActionButton(BuildContext context, {required IconData icon, required String label, required VoidCallback onTap}) {
-    return ElevatedButton.icon(
-      icon: Icon(icon, size: 24), // Slightly smaller icon
-      label: Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)), // Adjusted style
-      onPressed: onTap,
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0), // Adjusted padding
-        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-        foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0), // Slightly smaller radius
-        ),
-        alignment: Alignment.centerLeft,
-      ),
-    );
-  }
 }

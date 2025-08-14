@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:health_guard_flutter/models/user_roles.dart';
 import 'dart:math'; // For dummy data
-
+import '../widgets/app_drawer.dart'; // For the drawer
 import '../models/user_models.dart'; // For PatientBasicInfo
 import 'doctor_patient_detail_screen.dart'; // The detail screen we just created
 
@@ -96,6 +97,10 @@ class _DoctorScreenState extends State<DoctorScreen> {
         .of(context)
         .textTheme;
 
+    final String _adminName = "Super Admin";
+    final String _adminEmail = "admin@healthguard.com";
+    final String? _adminProfilePic = null;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Patients"),
@@ -137,6 +142,12 @@ class _DoctorScreenState extends State<DoctorScreen> {
             ),
           ),
         ),
+      ),
+      drawer: AppDrawer(
+        currentUserRole: UserRole.doctor, // <-- Set the role to admin
+        userName: _adminName,
+        userEmail: _adminEmail,
+        userProfileImageUrl: _adminProfilePic,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

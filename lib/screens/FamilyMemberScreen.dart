@@ -3,7 +3,8 @@ import 'dart:math'; // For dummy data
 
 import '../models/user_models.dart'; // For PatientBasicInfo (or your specific model)
 import 'FamilyMemberDetailScreen.dart'; // The detail screen
-
+import '../widgets/app_drawer.dart'; // For the drawer
+import '../models/user_roles.dart'; // For UserRole';
 // Placeholder for the "Add Family Member" flow
 class RequestLinkFamilyMemberScreen extends StatelessWidget {
   const RequestLinkFamilyMemberScreen({super.key});
@@ -135,6 +136,9 @@ class _FamilyMemberScreenState extends State<FamilyMemberScreen> {
     final TextTheme textTheme = Theme
         .of(context)
         .textTheme;
+    final String _adminName = "Super Admin";
+    final String _adminEmail = "admin@healthguard.com";
+    final String? _adminProfilePic = null;
 
     return Scaffold(
       appBar: AppBar(
@@ -175,6 +179,12 @@ class _FamilyMemberScreenState extends State<FamilyMemberScreen> {
             ),
           ),
         ),
+      ),
+      drawer: AppDrawer(
+        currentUserRole: UserRole.patient, // <-- Set the role to admin
+        userName: _adminName,
+        userEmail: _adminEmail,
+        userProfileImageUrl: _adminProfilePic,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
