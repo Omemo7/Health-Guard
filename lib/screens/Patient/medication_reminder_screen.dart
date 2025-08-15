@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart'; // For dummy data ID generation
-import '../models/medication_models.dart';
-import 'medication_reminder_form_screen.dart'; // The form screen
+import '../../models/MedicationRemainder.dart';
+import 'MedicationReminderScreen.dart'; // The form screen
 
 class MedicationReminderScreen extends StatefulWidget {
-  const MedicationReminderScreen({super.key});
+  const MedicationReminderScreen({super.key, MedicationReminder? initialReminder});
 
   @override
   State<MedicationReminderScreen> createState() =>
@@ -159,7 +159,7 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            MedicationReminderFormScreen(initialReminder: reminder),
+            MedicationReminderScreen(initialReminder: reminder),
       ),
     );
 

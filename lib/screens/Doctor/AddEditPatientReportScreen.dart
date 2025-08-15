@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-import '../models/health_models.dart'; // For MedicalReport
-import '../models/user_models.dart'; // For PatientBasicInfo (to get patientId)
+import '../../models/health_models/MedicalReport.dart';
 
 class AddEditPatientReportScreen extends StatefulWidget {
   final MedicalReport? initialReport;

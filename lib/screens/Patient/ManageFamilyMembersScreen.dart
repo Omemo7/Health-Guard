@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import '../models/user_models.dart'; // Assuming FamilyMember and _dummyFamilyMembers are here
-import 'add_edit_family_member_screen.dart';
+import '../../models/user_models/FamilyMember.dart';
+import 'AddEditFamilyMemberScreen.dart';
 
 
 final List<FamilyMember> _dummyFamilyMembers = [

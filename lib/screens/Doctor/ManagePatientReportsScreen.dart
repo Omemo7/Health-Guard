@@ -3,13 +3,13 @@ import 'package:intl/intl.dart';
 // import 'package:url_launcher/url_launcher.dart'; // If you want to open attachment URLs
 import 'package:uuid/uuid.dart'; // Ensure this is imported
 
-import '../models/health_models.dart';
-import '../models/user_models.dart'; // For PatientBasicInfo
-import 'doctor_add_edit_patient_report_screen.dart';
 
-// --- Dummy Data for Medical Reports (for demonstration) ---
-// In a real app, this would be fetched based on patientId.
-// For now, we'll filter this global list in the screen.
+import '../../models/health_models/MedicalReport.dart';
+
+import '../../models/user_models/PatientBasicInfo.dart';
+import 'AddEditPatientReportScreen.dart';
+
+
 final List<MedicalReport> _dummyMedicalReports = [
   MedicalReport(
     id: const Uuid().v4(),

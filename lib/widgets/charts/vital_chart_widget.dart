@@ -2,8 +2,11 @@
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../../models/health_models.dart'; // Adjusted import path
-import 'package:intl/intl.dart'; // For date formatting
+
+import 'package:intl/intl.dart';
+
+import '../../models/health_models/VitalDataPoint.dart';
+import '../../models/health_models/VitalLogEntry.dart'; // For date formatting
 
 class VitalChartWidget extends StatelessWidget {
   final List<VitalDataPoint> dataPoints;

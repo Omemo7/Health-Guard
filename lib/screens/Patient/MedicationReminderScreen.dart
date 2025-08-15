@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart'; // For generating unique IDs. Add `uuid: ^4.3.3` to pubspec.yaml
-import '../models/medication_models.dart';
+import '../../models/MedicationRemainder.dart';
 
-class MedicationReminderFormScreen extends StatefulWidget {
+class MedicationReminderScreen extends StatefulWidget {
   final MedicationReminder? initialReminder; // Pass this if editing
 
-  const MedicationReminderFormScreen({super.key, this.initialReminder});
+  const MedicationReminderScreen({super.key, this.initialReminder});
 
   @override
-  State<MedicationReminderFormScreen> createState() =>
-      _MedicationReminderFormScreenState();
+  State<MedicationReminderScreen> createState() =>
+      _MedicationReminderScreenState();
 }
 
-class _MedicationReminderFormScreenState
-    extends State<MedicationReminderFormScreen> {
+class _MedicationReminderScreenState
+    extends State<MedicationReminderScreen> {
   final _formKey = GlobalKey<FormState>();
   late String _medicationName;
   late String _dosage;

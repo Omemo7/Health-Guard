@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // For date formatting
 import 'package:uuid/uuid.dart'; // For new IDs
 
-import '../models/user_models.dart'; // Assuming FamilyMember model is here
+import '../../models/user_models/FamilyMember.dart'; // Assuming FamilyMember model is here
 
 class AddEditFamilyMemberScreen extends StatefulWidget {
   final FamilyMember? initialMember; // Null if adding, populated if editing

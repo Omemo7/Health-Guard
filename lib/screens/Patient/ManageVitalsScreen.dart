@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 // Correctly import your models (this provides VitalLogEntry, VitalType, vitalTypeToString, getVitalUnit, _dummyVitalLogEntries)
-import '../models/health_models.dart';
+
+import '../../models/health_models/VitalLogEntry.dart';
 import 'add_edit_vital_log_screen.dart'; // To navigate for adding/editing
 import 'package:uuid/uuid.dart';
 

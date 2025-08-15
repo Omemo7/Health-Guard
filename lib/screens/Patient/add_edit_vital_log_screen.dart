@@ -3,8 +3,8 @@ import 'package:flutter/services.dart'; // For TextInputFormatter
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-// Correctly import your models (this provides VitalLogEntry, VitalType, vitalTypeToString, getVitalUnit)
-import '../models/health_models.dart';
+
+import '../../models/health_models/VitalLogEntry.dart';
 
 class AddEditVitalLogScreen extends StatefulWidget {
   final VitalLogEntry? initialLogEntry;

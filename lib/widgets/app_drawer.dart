@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:health_guard_flutter/screens/FamilyMemberDetailScreen.dart';
-import 'package:health_guard_flutter/screens/manage_family_members_screen.dart';
-import 'package:health_guard_flutter/screens/medication_reminder_screen.dart';
-import 'package:health_guard_flutter/screens/link_doctor_screen.dart'; // Added import for LinkDoctorScreen
+import 'package:health_guard_flutter/screens/Family%20member/RelatedPatientDetailScreen.dart';
+import 'package:health_guard_flutter/screens/Patient/ManageFamilyMembersScreen.dart';
+import 'package:health_guard_flutter/screens/Patient/medication_reminder_screen.dart';
+import 'package:health_guard_flutter/screens/Patient/LinkDoctorScreen.dart'; // Added import for LinkDoctorScreen
+
 import '../models/user_roles.dart';
-import '../screens/manage_vitals_screen.dart'; // Import your UserRole enum
+import '../screens/Patient/ManageVitalsScreen.dart'; // Import your UserRole enum
 
-// Import screen destinations - replace with your actual screen paths
-// ... (your existing screen imports)
-// import '../screens/admin_user_management_screen.dart'; // Example for Admin
-// import '../screens/admin_system_settings_screen.dart'; // Example for Admin
-
-// ... (PlaceholderScreen definition remains the same) ...
 
 class PlaceholderScreen extends StatelessWidget {
   final String title;
@@ -58,7 +53,7 @@ class AppDrawer extends StatelessWidget {
         roleText = "Family Member View";
         roleIcon = Icons.family_restroom_outlined;
         break;
-      case UserRole.admin: // <-- Added Admin case for header
+      case UserRole.admin:
         roleText = "Administrator Panel";
         roleIcon = Icons.admin_panel_settings_outlined;
         break;
@@ -181,8 +176,8 @@ class AppDrawer extends StatelessWidget {
           // isSelected: ModalRoute.of(context)?.settings.name == '/profile',
           onTap: () {
             Navigator.pop(context);
-            Navigator.push(context, MaterialPageRoute(
-                builder: (_) => const PlaceholderScreen(title: "My Profile")));
+            // Navigate to ProfileScreen. Assuming it can handle a null userProfile or fetch its own.
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceholderScreen(title: "sd")));
           },
         ),
       ]);
@@ -213,17 +208,7 @@ class AppDrawer extends StatelessWidget {
                   const LinkDoctorScreen()));
             },
           ),
-          _buildDrawerListItem(
-            icon: Icons.medical_information_outlined,
-            text: 'Doctor Reports',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (_) =>
-                  const PlaceholderScreen(
-                      title: "My Medical Records")));
-            },
-          ),
+
           _buildDrawerListItem(
             icon: Icons.groups,
             text: 'Family Members',

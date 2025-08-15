@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:math'; // For dummy data
+import '../../models/user_models/PatientBasicInfo.dart';
+import 'RelatedPatientDetailScreen.dart'; // The detail screen
+import '../../widgets/app_drawer.dart'; // For the drawer
+import '../../models/user_roles.dart'; // For UserRole';
 
-import '../models/user_models.dart'; // For PatientBasicInfo (or your specific model)
-import 'FamilyMemberDetailScreen.dart'; // The detail screen
-import '../widgets/app_drawer.dart'; // For the drawer
-import '../models/user_roles.dart'; // For UserRole';
-// Placeholder for the "Add Family Member" flow
 class RequestLinkFamilyMemberScreen extends StatelessWidget {
   const RequestLinkFamilyMemberScreen({super.key});
 
@@ -116,7 +115,7 @@ class _FamilyMemberScreenState extends State<FamilyMemberScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => FamilyMemberDetailScreen(memberInfo: member),
+        builder: (context) => RelatedPatientDetailScreen(memberInfo: member),
       ),
     );
   }

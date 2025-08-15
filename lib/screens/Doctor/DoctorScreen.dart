@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:health_guard_flutter/models/user_roles.dart';
 import 'dart:math'; // For dummy data
-import '../widgets/app_drawer.dart'; // For the drawer
-import '../models/user_models.dart'; // For PatientBasicInfo
-import 'doctor_patient_detail_screen.dart'; // The detail screen we just created
+import '../../models/user_models/PatientBasicInfo.dart';
+import '../../widgets/app_drawer.dart'; // For the drawer
+
+import 'PatientDetailScreen.dart'; // The detail screen we just created
 
 class DoctorScreen extends StatefulWidget {
   const DoctorScreen({super.key});
@@ -86,7 +87,7 @@ class _DoctorScreenState extends State<DoctorScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DoctorPatientDetailScreen(patientInfo: patient),
+        builder: (context) => PatientDetailScreen(patientInfo: patient),
       ),
     );
   }

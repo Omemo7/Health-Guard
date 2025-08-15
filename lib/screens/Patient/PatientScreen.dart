@@ -1,13 +1,15 @@
 // lib/screens/patient_screen.dart
 
 import 'package:flutter/material.dart';
-import 'dart:math'; // For random data generation
+import 'dart:math';
+import '../../models/health_models/MonthlyHealthSummary.dart';
+import '../../models/health_models/VitalDataPoint.dart';
+import '../../models/health_models/VitalLogEntry.dart';
+import '../../widgets/app_drawer.dart';
+import '../../models/user_roles.dart';
 
-import '../widgets/app_drawer.dart';
-import '../models/user_roles.dart';
-import '../models/health_models.dart';
-import '../widgets/charts/overall_health_chart_widget.dart';
-import '../widgets/charts/vital_chart_widget.dart';
+import '../../widgets/charts/overall_health_chart_widget.dart';
+import '../../widgets/charts/vital_chart_widget.dart';
 
 class PatientProfileScreen extends StatelessWidget { const PatientProfileScreen({super.key}); @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('My Profile')), body: const Center(child: Text('Patient Profile Screen - TODO'))); }
 class AppSettingsScreen extends StatelessWidget { const AppSettingsScreen({super.key}); @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Settings')), body: const Center(child: Text('App Settings Screen - TODO'))); }

@@ -2,7 +2,9 @@
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../../models/health_models.dart'; // Adjusted import path
+
+import '../../models/health_models/MonthlyHealthSummary.dart';
+
 
 class OverallHealthChartWidget extends StatelessWidget {
   final List<MonthlyHealthSummary> healthData;

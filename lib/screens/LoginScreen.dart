@@ -1,9 +1,9 @@
 // In your new.dart (or login_screen.dart) file:
 import 'package:flutter/material.dart';
-import 'package:health_guard_flutter/screens/DoctorScreen.dart';
-import 'package:health_guard_flutter/screens/FamilyMemberScreen.dart';
+import 'package:health_guard_flutter/screens/Doctor/DoctorScreen.dart';
+import 'package:health_guard_flutter/screens/Family%20member/FamilyMemberScreen.dart';
 // Import the PatientScreen
-import 'PatientScreen.dart'; // Make sure this path is correct
+import 'Patient/PatientScreen.dart'; // Make sure this path is correct
 // If you have a RegisterScreen, keep that import as well
 import 'RegisterScreen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
