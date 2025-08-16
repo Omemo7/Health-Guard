@@ -1,30 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 import '../../models/user_models/FamilyMember.dart';
-import 'AddEditFamilyMemberScreen.dart';
 
-
-final List<FamilyMember> _dummyFamilyMembers = [
+// This list now simulates all available users in the "system" that can be searched.
+final List<FamilyMember> _allSystemUsers = [
   FamilyMember(
-    id: const Uuid().v4(),
+    id: "laura_s_88",
     name: "Laura Smith",
     relationship: "Spouse",
     dateOfBirth: DateTime(1988, 7, 20),
-    profileImageUrl: 'https://i.pravatar.cc/150?u=laura_smith_family', // Placeholder image
+    profileImageUrl: 'https://i.pravatar.cc/150?u=laura_smith_family',
   ),
   FamilyMember(
-    id: const Uuid().v4(),
+    id: "michael_jr_15",
     name: "Michael Smith Jr.",
     relationship: "Child",
     dateOfBirth: DateTime(2015, 3, 10),
-    // profileImageUrl: null, // No image for this one
+    // profileImageUrl: null,
   ),
   FamilyMember(
-    id: const Uuid().v4(),
+    id: "sarah_c_65",
     name: "Sarah Connor",
     relationship: "Mother",
     dateOfBirth: DateTime(1965, 11, 5),
     profileImageUrl: 'https://i.pravatar.cc/150?u=sarah_connor_family',
+  ),
+  FamilyMember(
+    id: "john_d_70",
+    name: "John Doe",
+    relationship: "Friend",
+    dateOfBirth: DateTime(1970, 1, 1),
+    profileImageUrl: 'https://i.pravatar.cc/150?u=john_doe_sys',
+  ),
+  FamilyMember(
+    id: "jane_r_92",
+    name: "Jane Roe",
+    relationship: "Colleague",
+    dateOfBirth: DateTime(1992, 5, 15),
+    // No image
   ),
 ];
 
@@ -37,83 +49,145 @@ class ManageFamilyMembersScreen extends StatefulWidget {
 }
 
 class _ManageFamilyMembersScreenState extends State<ManageFamilyMembersScreen> {
-  // In a real app, this list would be fetched from a service/backend
-  // and managed via a state management solution.
-  List<FamilyMember> _familyMembers = [];
-  bool _isLoading = true;
+  // Static cache for linked members across the app session
+  static List<FamilyMember> _sessionLinkedMembers = [];
+
+  List<FamilyMember> _linkedFamilyMembers = [];
+  bool _isLoadingInitialLinks = true;
+  final TextEditingController _searchIdController = TextEditingController();
+  FamilyMember? _searchedUserResult;
+  String? _searchFeedbackMessage;
+  bool _isProcessingAction = false;
 
   @override
   void initState() {
     super.initState();
-    _loadFamilyMembers();
+    // Initialize from static cache and then refresh/load
+    _linkedFamilyMembers = List.from(_sessionLinkedMembers);
+    _handleRefreshLinkedMembers();
   }
 
-  // --- TODO: Replace with actual data fetching logic ---
-  Future<void> _loadFamilyMembers() async {
-    if (mounted) setState(() => _isLoading = true);
-    await Future.delayed(
-        const Duration(milliseconds: 600)); // Simulate API call
+  @override
+  void dispose() {
+    _searchIdController.dispose();
+    super.dispose();
+  }
 
-    // For now, use the dummy list. In a real app, fetch from your persistence layer.
-    // If you were using a global list like _dummyFamilyMembers, you might copy it:
-    // _familyMembers = List.from(_dummyFamilyMembers);
-    // However, it's better if this screen manages its own copy or gets it from a state provider.
-    // For this example, let's initialize it if it's the first load to simulate.
-    if (_familyMembers.isEmpty &&
-        _dummyFamilyMembers.isNotEmpty) { // Only load dummy if empty
-      _familyMembers = List.from(_dummyFamilyMembers);
-    }
+  Future<void> _handleRefreshLinkedMembers() async {
+    if (mounted) setState(() => _isLoadingInitialLinks = true);
+    await Future.delayed(const Duration(milliseconds: 300)); // Simulate API call or cache read
 
+    // Sync with the session cache
+    // No need to re-assign from _sessionLinkedMembers if initState did it,
+    // but ensure it's sorted and state is updated for the UI.
+    // If this is a true "refresh from server" in a real app, you'd fetch here.
+    // For this simulation, we ensure the local list matches the static one.
+    _linkedFamilyMembers = List.from(_sessionLinkedMembers);
+    _linkedFamilyMembers.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
     if (mounted) {
       setState(() {
-        _isLoading = false;
+        _isLoadingInitialLinks = false;
       });
     }
   }
 
-  void _navigateToAddEditScreen({FamilyMember? member}) async {
-    final result = await Navigator.push<FamilyMember>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddEditFamilyMemberScreen(initialMember: member),
-      ),
-    );
+  void _handleSearchUserById() async {
+    final String idToSearch = _searchIdController.text.trim();
+    FocusScope.of(context).unfocus();
 
-    if (result != null && mounted) {
-      // --- TODO: Persist this change to your backend/local storage ---
+    if (idToSearch.isEmpty) {
       setState(() {
-        if (member != null) { // Editing existing
-          final index = _familyMembers.indexWhere((m) => m.id == result.id);
-          if (index != -1) {
-            _familyMembers[index] = result;
-          }
-        } else { // Adding new
-          _familyMembers.add(result);
-          // Add to dummy list as well if you want it to persist across hot reloads FOR DEMO
-          _dummyFamilyMembers.add(result);
-        }
-        _familyMembers.sort((a, b) =>
-            a.name.toLowerCase().compareTo(
-                b.name.toLowerCase())); // Keep sorted
+        _searchedUserResult = null;
+        _searchFeedbackMessage = "Please enter a User ID to search.";
+        _isProcessingAction = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Family member ${member != null
-            ? "updated"
-            : "added"} successfully.')),
-      );
+      return;
+    }
+
+    setState(() {
+      _isProcessingAction = true;
+      _searchedUserResult = null;
+      _searchFeedbackMessage = "Searching for ID: $idToSearch...";
+    });
+
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    FamilyMember? foundUserInSystem;
+    try {
+      foundUserInSystem =
+          _allSystemUsers.firstWhere((member) => member.id == idToSearch);
+    } catch (e) {
+      foundUserInSystem = null;
+    }
+
+    if (mounted) {
+      if (foundUserInSystem != null) {
+        final bool isAlreadyLinked = _linkedFamilyMembers
+            .any((linkedMember) => linkedMember.id == foundUserInSystem!.id);
+        if (isAlreadyLinked) {
+          _searchFeedbackMessage =
+              "'${foundUserInSystem.name}' is already linked.";
+        } else {
+          _searchFeedbackMessage = "Found user: '${foundUserInSystem.name}'.";
+        }
+        _searchedUserResult = foundUserInSystem;
+      } else {
+        _searchFeedbackMessage = "User with ID '$idToSearch' not found.";
+        _searchedUserResult = null;
+      }
+      setState(() {
+        _isProcessingAction = false;
+      });
     }
   }
 
-  void _confirmDeleteMember(FamilyMember member) {
+  void _sendLinkRequestAndSimulateAccept(FamilyMember userToLink) async {
+    setState(() {
+      _isProcessingAction = true;
+      _searchFeedbackMessage = "Sending link request to '${userToLink.name}'...";
+    });
+
+    await Future.delayed(const Duration(milliseconds: 1200));
+
+    if (mounted) {
+      if (!_linkedFamilyMembers.any((m) => m.id == userToLink.id)) {
+        _linkedFamilyMembers.add(userToLink);
+        _linkedFamilyMembers.sort((a, b) =>
+            a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        
+        // Update static cache
+        if (!_sessionLinkedMembers.any((m) => m.id == userToLink.id)) {
+          _sessionLinkedMembers.add(userToLink);
+          _sessionLinkedMembers.sort((a, b) => 
+              a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        }
+      }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text("Link request for '${userToLink.name}' auto-accepted!"),
+            backgroundColor: Colors.green),
+      );
+      
+      setState(() {
+        _isProcessingAction = false;
+        _searchedUserResult = null; 
+        _searchIdController.clear();
+        _searchFeedbackMessage = null; 
+      });
+    }
+  }
+
+  void _confirmUnlinkMember(FamilyMember member) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text('Delete ${member.name}?'),
+          title: Text('Unlink ${member.name}?'),
           content: Text(
-              'Are you sure you want to remove ${member
-                  .name} from your family members? This action cannot be undone.'),
+              'Are you sure you want to unlink ${member.name}? They will no longer appear in your linked members list.'),
           actions: <Widget>[
             TextButton(
               child: const Text('Cancel'),
@@ -121,10 +195,10 @@ class _ManageFamilyMembersScreenState extends State<ManageFamilyMembersScreen> {
             ),
             TextButton(
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Delete'),
+              child: const Text('Unlink'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                _deleteMember(member);
+                _unlinkMember(member);
               },
             ),
           ],
@@ -133,144 +207,202 @@ class _ManageFamilyMembersScreenState extends State<ManageFamilyMembersScreen> {
     );
   }
 
-  void _deleteMember(FamilyMember member) {
-    // --- TODO: Persist this change to your backend/local storage ---
+  void _unlinkMember(FamilyMember member) async {
+    setState(() {
+      _isProcessingAction = true;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 600)); 
+
     if (mounted) {
-      setState(() {
-        _familyMembers.removeWhere((m) => m.id == member.id);
-        // Remove from dummy list as well FOR DEMO
-        _dummyFamilyMembers.removeWhere((m) => m.id == member.id);
-      });
+      _linkedFamilyMembers.removeWhere((m) => m.id == member.id);
+      // Update static cache
+      _sessionLinkedMembers.removeWhere((m) => m.id == member.id);
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('${member.name} removed.'),
+            content: Text('${member.name} has been unlinked.'),
             backgroundColor: Colors.orange),
       );
+      setState(() {
+        _isProcessingAction = false;
+        if (_searchedUserResult?.id == member.id) {
+            _searchedUserResult = null;
+            _searchFeedbackMessage = "'${member.name}' was unlinked.";
+        }
+      });
     }
+  }
+
+  Widget _buildAvatar(FamilyMember member, BuildContext context) {
+    return CircleAvatar(
+      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+      foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+      backgroundImage:
+          member.profileImageUrl != null && member.profileImageUrl!.isNotEmpty
+              ? NetworkImage(member.profileImageUrl!)
+              : null,
+      child: member.profileImageUrl == null || member.profileImageUrl!.isEmpty
+          ? Text(member.name.isNotEmpty ? member.name[0].toUpperCase() : 'U',
+              style: TextStyle(fontWeight: FontWeight.bold))
+          : null,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme
-        .of(context)
-        .textTheme;
+    final textTheme = Theme.of(context).textTheme;
+    bool isUserFoundAndNotLinked = _searchedUserResult != null &&
+        !_linkedFamilyMembers.any((m) => m.id == _searchedUserResult!.id);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Family Members'),
+        title: const Text('Link Family Members'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_outlined),
-            onPressed: _loadFamilyMembers, // Allows manual refresh
-            tooltip: "Refresh List",
+            onPressed: _isLoadingInitialLinks || _isProcessingAction ? null : _handleRefreshLinkedMembers,
+            tooltip: "Refresh Linked Members",
           )
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _familyMembers.isEmpty
-          ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.people_outline, size: 80, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text('No family members added yet.',
-                style: textTheme.titleLarge?.copyWith(color: Colors.grey[700])),
-            const SizedBox(height: 8),
-            Text('Tap the "+" button to add your first family member.',
-                textAlign: TextAlign.center,
-                style: textTheme.bodyMedium?.copyWith(color: Colors.grey[600])),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.add_circle_outline),
-              label: const Text('Add First Member'),
-              onPressed: () => _navigateToAddEditScreen(),
-            ),
-          ],
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text("Search by User ID to Link", style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _searchIdController,
+                decoration: InputDecoration(
+                  labelText: "Enter User ID",
+                  hintText: "e.g., laura_s_88, john_d_70",
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      _searchIdController.clear();
+                      if (mounted) {
+                        setState(() {
+                          _searchedUserResult = null;
+                          _searchFeedbackMessage = null;
+                        });
+                      }
+                    },
+                  ),
+                ),
+                keyboardType: TextInputType.text,
+                onSubmitted: (_) => _isProcessingAction ? null : _handleSearchUserById(),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.search_outlined),
+                label: const Text("Search User"),
+                onPressed: _isProcessingAction ? null : _handleSearchUserById,
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+              ),
+              const SizedBox(height: 16),
+
+              if (_isProcessingAction && _searchFeedbackMessage == "Searching for ID: ${_searchIdController.text.trim()}...")
+                const Center(child: Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator())),
+              if (_searchFeedbackMessage != null && !(_isProcessingAction && _searchFeedbackMessage!.startsWith("Searching")))
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    _searchFeedbackMessage!,
+                    style: textTheme.bodyMedium?.copyWith(
+                        color: _searchedUserResult != null && isUserFoundAndNotLinked
+                            ? Colors.green.shade700
+                            : Theme.of(context).colorScheme.error),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              
+              if (_searchedUserResult != null)
+                Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      children: [
+                        _buildAvatar(_searchedUserResult!, context),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(_searchedUserResult!.name, style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                              Text("ID: ${_searchedUserResult!.id}", style: textTheme.bodySmall),
+                            ],
+                          ),
+                        ),
+                        if (isUserFoundAndNotLinked)
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.link_outlined),
+                            label: const Text("Link"),
+                            onPressed: _isProcessingAction ? null : () => _sendLinkRequestAndSimulateAccept(_searchedUserResult!),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          )
+                        else if (_linkedFamilyMembers.any((m) => m.id == _searchedUserResult!.id))
+                          Text("Linked", style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ),
+
+              const Divider(thickness: 1, height: 32),
+
+              Text("Your Linked Family Members (${_linkedFamilyMembers.length})", style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              if (_isLoadingInitialLinks)
+                const Center(child: CircularProgressIndicator())
+              else if (_linkedFamilyMembers.isEmpty)
+                Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        "No family members linked yet. Search for a user by their ID above to send a link request.",
+                        textAlign: TextAlign.center,
+                        style: textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
+                      ),
+                    ),
+                  ),
+                )
+              else
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _linkedFamilyMembers.length,
+                    itemBuilder: (context, index) {
+                      final member = _linkedFamilyMembers[index];
+                      return Card(
+                        elevation: 1.5,
+                        margin: const EdgeInsets.symmetric(vertical: 5.0),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        child: ListTile(
+                          leading: _buildAvatar(member, context),
+                          title: Text(member.name, style: textTheme.titleMedium),
+                          subtitle: Text("ID: ${member.id}", style: textTheme.bodySmall),
+                          trailing: IconButton(
+                            icon: Icon(Icons.link_off_outlined, color: Colors.redAccent.shade200),
+                            tooltip: "Unlink ${member.name}",
+                            onPressed: _isProcessingAction ? null : () => _confirmUnlinkMember(member),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
         ),
-      )
-          : ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        itemCount: _familyMembers.length,
-        itemBuilder: (context, index) {
-          final member = _familyMembers[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Theme
-                    .of(context)
-                    .colorScheme
-                    .secondaryContainer,
-                foregroundColor: Theme
-                    .of(context)
-                    .colorScheme
-                    .onSecondaryContainer,
-                backgroundImage: member.profileImageUrl != null
-                    ? NetworkImage(member.profileImageUrl!)
-                    : null,
-                child: member.profileImageUrl == null
-                    ? Text(
-                    member.name.isNotEmpty ? member.name[0].toUpperCase() : 'F')
-                    : null,
-              ),
-              title: Text(member.name, style: textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w500)),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(member.relationship,
-                      style: textTheme.bodyMedium?.copyWith(color: Theme
-                          .of(context)
-                          .colorScheme
-                          .primary)),
-                  if (member.dateOfBirth != null)
-                    Text('Age: ${member.age}', style: textTheme.bodySmall),
-                ],
-              ),
-              trailing: PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert_outlined),
-                onSelected: (value) {
-                  if (value == 'edit') {
-                    _navigateToAddEditScreen(member: member);
-                  } else if (value == 'delete') {
-                    _confirmDeleteMember(member);
-                  }
-                  // --- TODO: Add 'view_details' or other actions if needed ---
-                },
-                itemBuilder: (BuildContext context) =>
-                <PopupMenuEntry<String>>[
-                  const PopupMenuItem<String>(
-                    value: 'edit',
-                    child: ListTile(leading: Icon(Icons.edit_outlined),
-                        title: Text('Edit')),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'delete',
-                    child: ListTile(leading: Icon(Icons.delete_outline,
-                        color: Colors.red),
-                        title: Text('Delete', style: TextStyle(
-                            color: Colors.red))),
-                  ),
-                ],
-              ),
-              onTap: () {
-                // Optionally, navigate to a detailed view screen for the family member
-                // For now, edit is in the popup menu.
-                _navigateToAddEditScreen(
-                    member: member); // Or a dedicated view screen
-              },
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _navigateToAddEditScreen(),
-        label: const Text('Add Member'),
-        icon: const Icon(Icons.add_outlined),
       ),
     );
   }
