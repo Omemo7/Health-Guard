@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:math'; // For dummy data generation
-
-
+import 'dart:math';
 import '../../models/health_models/MonthlyHealthSummary.dart';
 import '../../models/health_models/VitalDataPoint.dart';
 import '../../models/health_models/VitalLogEntry.dart';
@@ -24,7 +22,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
   late List<MonthlyHealthSummary> _patientMonthlyHealthData;
   late Map<VitalType, List<VitalDataPoint>> _patientVitalData;
   bool _isLoading = true;
-  final Random _random = Random(); // For dummy data
+  final Random _random = Random();
 
   @override
   void initState() {
@@ -35,18 +33,14 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
   Future<void> _fetchDataForPatient(String patientId) async {
     if (mounted) setState(() => _isLoading = true);
 
-    // --- TODO: ACTUAL API call to get data for the specific patientId ---
-    // The backend should ensure the doctor is authorized to see this patient's data.
     print("Fetching health data for patient ID: $patientId (${widget.patientInfo
         .name})");
-    await Future.delayed(const Duration(seconds: 1)); // Simulate API call
+    
 
-    // --- Dummy Data Generation (replace with actual fetched data) ---
     _patientMonthlyHealthData = List.generate(6, (index) {
       final monthDate = DateTime.now().subtract(Duration(days: index * 30));
       final monthName = _getMonthName(monthDate.month);
-      return MonthlyHealthSummary(monthName, 50 +
-          _random.nextDouble() * 40); // Slightly different range for variety
+      return MonthlyHealthSummary(monthName, 50 + _random.nextDouble() * 40);
     }).reversed.toList();
 
     _patientVitalData = {};
@@ -74,7 +68,6 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
         return VitalDataPoint(date, value);
       });
     }
-    // --- End Dummy Data Generation ---
 
     if (mounted) setState(() => _isLoading = false);
   }
@@ -115,9 +108,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
       appBar: AppBar(
         title: Text(widget.patientInfo.name),
         backgroundColor: Theme
-            .of(context)
-            .colorScheme
-            .surfaceVariant, // Slightly different AppBar color
+            .of(context).colorScheme.surfaceVariant,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -126,7 +117,6 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            // Patient Info Header (Optional)
             Card(
               elevation: 1,
               margin: const EdgeInsets.only(bottom: 16),
@@ -145,10 +135,10 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                     Text("Patient ID: ${widget.patientInfo.id}",
                         style: textTheme.bodySmall),
                     const SizedBox(height: 4),
-                    Text("Age: ${widget.patientInfo.age}", // Added age display
+                    Text("Age: ${widget.patientInfo.age}",
                         style: textTheme.bodySmall),
                     const SizedBox(height: 4),
-                    Text("Gender: ${widget.patientInfo.gender}", // Added gender display
+                    Text("Gender: ${widget.patientInfo.gender}",
                         style: textTheme.bodySmall),
                   ],
                 ),
@@ -163,8 +153,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
             ),
             OverallHealthChartWidget(
               healthData: _patientMonthlyHealthData,
-              barColor: primaryColor.withOpacity(
-                  0.8), // Doctor might have consistent color scheme
+              barColor: primaryColor.withOpacity(0.8),
             ),
             const SizedBox(height: 24.0),
 
@@ -192,10 +181,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                 subtitle: Text("View, add, or edit reports for ${widget.patientInfo.name}"),
                 trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 18),
                 onTap: () {
-                  // --- TODO: Get the current doctor's ID ---
-                  // For now, let's assume a placeholder doctorId.
-                  // In a real app, this would come from your authentication state.
-                  const String currentDoctorId = "doctor_logged_in_123"; // <<-- REPLACE THIS
+                  const String currentDoctorId = "doctor_logged_in_123";
 
                   Navigator.push(
                     context,
@@ -211,8 +197,6 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
             ),
 
             const SizedBox(height: 24.0),
-            // TODO: Add any doctor-specific actions here
-            // e.g., Button to add notes, prescribe medication, schedule follow-up
           ],
         ),
       ),

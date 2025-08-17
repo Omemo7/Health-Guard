@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart'; // For dummy data ID generation
+import 'package:uuid/uuid.dart';
 import '../../models/MedicationRemainder.dart';
-import 'AddEditMedicationReminderScreen.dart'; // The form screen
+import 'AddEditMedicationReminderScreen.dart';
 
-// Global store for reminders for this session
 List<MedicationReminder> _globalReminders = [];
 bool _globalRemindersInitialized = false;
 
@@ -16,18 +15,17 @@ class MedicationReminderScreen extends StatefulWidget {
 }
 
 class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
-  bool _isLoading = true; // Simulate initial loading
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _loadReminders();
   }
-
   Future<void> _loadReminders() async {
     setState(() => _isLoading = true);
-    // Simulate loading
-    await Future.delayed(const Duration(milliseconds: 700));
+
+
 
     if (!_globalRemindersInitialized && mounted) {
       _globalReminders = [
@@ -76,20 +74,16 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
   }
 
   void _addOrUpdateReminder(MedicationReminder reminder) {
-    // --- TODO: Persist change to backend/local storage ---
     final index = _globalReminders.indexWhere((r) => r.id == reminder.id);
     if (index != -1) {
-      _globalReminders[index] = reminder; // Update
+      _globalReminders[index] = reminder;
     } else {
-      _globalReminders.add(reminder); // Add
+      _globalReminders.add(reminder);
     }
     _sortGlobalReminders();
-    // setState will be called by _navigateToForm
-    // --- TODO: Schedule/update actual device notification ---
   }
 
   void _deleteReminder(String reminderId) {
-    // --- TODO: Persist change to backend/local storage ---
     MedicationReminder? deletedReminder;
     int? deletedReminderIndex;
     final index = _globalReminders.indexWhere((r) => r.id == reminderId);
@@ -98,50 +92,38 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
       deletedReminder = _globalReminders[index];
       deletedReminderIndex = index;
       _globalReminders.removeAt(index);
-      // setState(() {}); // UI updated by _showDeleteConfirmation's setState or SnackBar flow
     }
 
-    // --- TODO: Cancel actual device notification ---
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Reminder deleted.'),
           action: SnackBarAction(
             label: "Undo",
-            onPressed: () async {
+            onPressed: () {
               if (deletedReminder != null && deletedReminderIndex != null) {
                 _globalReminders.insert(deletedReminderIndex, deletedReminder!);
                 _sortGlobalReminders();
-                // --- TODO: Re-schedule notification ---
                 if (mounted) {
-                  setState(() {}); // Update UI with the restored item
+                  setState(() {});
                   ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Deletion undone.'))
                   );
                 }
-              } else {
-                // Fallback to reloading if not using temporary undo (though less likely with this setup)
-                await _loadReminders();
               }
-            },
-          ),
+            },          ),
         ),
       );
     }
-     // The setState in _showDeleteConfirmation will handle the initial UI update
-     // or if _showDeleteConfirmation is not used, a setState after this call would be needed.
-     // For now, _showDeleteConfirmation handles it.
   }
 
-
   void _toggleReminderStatus(MedicationReminder reminder, bool isEnabled) {
-    // --- TODO: Persist change to backend/local storage ---
+
     final index = _globalReminders.indexWhere((r) => r.id == reminder.id);
     if (index != -1) {
       _globalReminders[index] = reminder.copyWith(isEnabled: isEnabled);
-      // setState is called by the Switch's onChanged callback in _buildReminderCard
-      // --- TODO: Schedule/cancel actual device notification based on new status ---
-      if (mounted) { // Ensure widget is still in tree before showing SnackBar
+
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text('Reminder ${isEnabled ? "enabled" : "disabled"}'))
@@ -173,8 +155,8 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_outlined),
-            onPressed: () async { // Make onPressed async if _loadReminders is async
-              _globalRemindersInitialized = false; // Force re-fetch of dummy data for refresh
+            onPressed: () async {
+              _globalRemindersInitialized = false;
               await _loadReminders();
             },
             tooltip: "Refresh Reminders",
@@ -226,32 +208,33 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
   }
 
   Widget _buildReminderCard(MedicationReminder reminder) {
-    final cardColor = reminder.isEnabled
-        ? Theme
-        .of(context)
-        .colorScheme
-        .surfaceVariant
-        : Theme
-        .of(context)
-        .colorScheme
-        .surfaceVariant
-        .withAlpha(100);
-    final onCardColor = reminder.isEnabled
-        ? Theme
-        .of(context)
-        .colorScheme
-        .onSurfaceVariant
-        : Theme
-        .of(context)
-        .colorScheme
-        .onSurfaceVariant
-        .withAlpha(150);
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
 
+    Color cardBackgroundColor;
+    Color contentColor; 
+    Color secondaryContentColor; 
+    Color alarmStatusIconColor;
+    Color moreVertIconColor;
+
+    if (reminder.isEnabled) {
+      cardBackgroundColor = colorScheme.surfaceContainerHigh;
+      contentColor = colorScheme.onSurfaceVariant; 
+      secondaryContentColor = colorScheme.onSurfaceVariant.withOpacity(0.75);
+      alarmStatusIconColor = colorScheme.primary;
+      moreVertIconColor = colorScheme.onSurfaceVariant;
+    } else {
+      cardBackgroundColor = colorScheme.surfaceVariant.withOpacity(0.6); 
+      contentColor = colorScheme.onSurfaceVariant.withOpacity(0.5); 
+      secondaryContentColor = colorScheme.onSurfaceVariant.withOpacity(0.4);
+      alarmStatusIconColor = colorScheme.onSurface.withOpacity(0.38); 
+      moreVertIconColor = colorScheme.onSurfaceVariant.withOpacity(0.5);
+    }
 
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 6.0),
-      color: cardColor,
+      color: cardBackgroundColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: Padding(
         padding: const EdgeInsets.only(
@@ -262,10 +245,7 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
               reminder.isEnabled ? Icons.alarm_on_outlined : Icons
                   .alarm_off_outlined,
               size: 36,
-              color: reminder.isEnabled ? Theme
-                  .of(context)
-                  .colorScheme
-                  .primary : Colors.grey,
+              color: alarmStatusIconColor,
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -274,57 +254,52 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
                 children: [
                   Text(
                     reminder.medicationName,
-                    style: Theme
-                        .of(context)
+                    style: theme
                         .textTheme
                         .titleLarge
                         ?.copyWith(
-                        fontWeight: FontWeight.bold, color: onCardColor),
+                        fontWeight: FontWeight.bold, color: contentColor),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     reminder.dosage,
-                    style: Theme
-                        .of(context)
+                    style: theme
                         .textTheme
                         .bodyMedium
-                        ?.copyWith(color: onCardColor),
+                        ?.copyWith(color: contentColor),
                   ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
                       Icon(Icons.access_time_filled_rounded, size: 16,
-                          color: onCardColor.withOpacity(0.8)),
+                          color: secondaryContentColor),
                       const SizedBox(width: 4),
                       Text(
                         reminder.timeFormatted(context),
-                        style: Theme
-                            .of(context)
+                        style: theme
                             .textTheme
                             .titleMedium
-                            ?.copyWith(color: onCardColor),
+                            ?.copyWith(color: contentColor),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
                     "Days: ${reminder.daysFormatted}",
-                    style: Theme
-                        .of(context)
+                    style: theme
                         .textTheme
                         .bodySmall
-                        ?.copyWith(color: onCardColor),
+                        ?.copyWith(color: secondaryContentColor),
                   ),
                   if (reminder.notes != null && reminder.notes!.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
                       "Notes: ${reminder.notes}",
-                      style: Theme
-                          .of(context)
+                      style: theme
                           .textTheme
                           .bodySmall
                           ?.copyWith(
-                          fontStyle: FontStyle.italic, color: onCardColor),
+                          fontStyle: FontStyle.italic, color: secondaryContentColor),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -338,17 +313,14 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
                 Switch(
                   value: reminder.isEnabled,
                   onChanged: (bool value) {
-                    setState(() { // This setState will refresh the card
+                    setState(() {
                       _toggleReminderStatus(reminder, value);
                     });
                   },
-                  activeColor: Theme
-                      .of(context)
-                      .colorScheme
-                      .primary,
+                  activeColor: colorScheme.primary,
                 ),
                 PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert, color: onCardColor),
+                  icon: Icon(Icons.more_vert, color: moreVertIconColor),
                   onSelected: (value) {
                     if (value == 'edit') {
                       _navigateToForm(reminder: reminder);
@@ -387,8 +359,7 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
         return AlertDialog(
           title: const Text('Delete Reminder?'),
           content: Text(
-              'Are you sure you want to delete the reminder for "${reminder
-                  .medicationName}"?'), // Simplified message
+              'Are you sure you want to delete the reminder for "${reminder.medicationName}"?'),
           actions: <Widget>[
             TextButton(
               child: const Text('Cancel'),
@@ -405,7 +376,7 @@ class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
     );
 
     if (confirmed == true && mounted) {
-      setState(() { // This setState triggers UI update after _deleteReminder modifies the list
+      setState(() {
         _deleteReminder(reminder.id);
       });
     }

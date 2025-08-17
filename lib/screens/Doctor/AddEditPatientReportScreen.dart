@@ -6,8 +6,8 @@ import '../../models/health_models/MedicalReport.dart';
 
 class AddEditPatientReportScreen extends StatefulWidget {
   final MedicalReport? initialReport;
-  final String patientId; // The ID of the patient this report is for
-  final String doctorId; // The ID of the currently logged-in doctor
+  final String patientId;
+  final String doctorId;
 
   const AddEditPatientReportScreen({
     super.key,
@@ -27,7 +27,7 @@ class _AddEditPatientReportScreenState
   late TextEditingController _titleController;
   late TextEditingController _contentController;
   late TextEditingController _reportTypeController;
-  late TextEditingController _attachmentUrlController; // For simplicity, direct URL input
+  late TextEditingController _attachmentUrlController;
   late DateTime _selectedDate;
 
   bool get _isEditing => widget.initialReport != null;
@@ -51,7 +51,7 @@ class _AddEditPatientReportScreenState
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2000),
-      lastDate: DateTime.now().add(const Duration(days: 1)), // Allow today
+      lastDate: DateTime.now().add(const Duration(days: 1)),
     );
     if (picked != null && picked != _selectedDate && mounted) {
       setState(() {

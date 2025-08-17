@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart'; // For TimeOfDay
+import 'package:flutter/material.dart';
 
 class MedicationReminder {
-  String id; // Unique ID, can be generated (e.g., UUID) or from backend
+  String id;
   String medicationName;
-  String dosage; // e.g., "1 tablet", "10mg", "5ml"
-  TimeOfDay time; // Time for the reminder
-  List<DayOfWeek> days; // Which days of the week
+  String dosage;
+  TimeOfDay time;
+  List<DayOfWeek> days;
   bool isEnabled;
-  String? notes; // Optional notes
+  String? notes;
 
   MedicationReminder({
     required this.id,
@@ -19,7 +19,6 @@ class MedicationReminder {
     this.notes,
   });
 
-  // Helper to get a string representation of days
   String get daysFormatted {
     if (days.isEmpty) return "No days selected";
     if (days.length == 7) return "Every Day";
@@ -30,12 +29,10 @@ class MedicationReminder {
     return days.map((d) => dayOfWeekToString(d).substring(0, 3)).join(', ');
   }
 
-  // Helper to get a string for time
   String timeFormatted(BuildContext context) {
     return time.format(context);
   }
 
-  // For copying and updating (immutability pattern if preferred)
   MedicationReminder copyWith({
     String? id,
     String? medicationName,
@@ -44,7 +41,7 @@ class MedicationReminder {
     List<DayOfWeek>? days,
     bool? isEnabled,
     String? notes,
-    bool clearNotes = false, // Special flag to explicitly clear notes
+    bool clearNotes = false,
   }) {
     return MedicationReminder(
       id: id ?? this.id,

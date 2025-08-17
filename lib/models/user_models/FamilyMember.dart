@@ -1,12 +1,10 @@
-import 'package:flutter/foundation.dart';
 
-@immutable
 class FamilyMember {
   final String id;
   final String name;
-  final String relationship; // e.g., "Spouse", "Child", "Parent"
-  final DateTime? dateOfBirth; // Optional
-  final String? profileImageUrl; // Optional
+  final String relationship;
+  final DateTime? dateOfBirth;
+  final String? profileImageUrl;
 
   const FamilyMember({
     required this.id,
@@ -16,7 +14,7 @@ class FamilyMember {
     this.profileImageUrl,
   });
 
-  // Optional: Calculated age
+
   int? get age {
     if (dateOfBirth == null) return null;
     final now = DateTime.now();
@@ -28,23 +26,5 @@ class FamilyMember {
     return age;
   }
 
-  FamilyMember copyWith({
-    String? id,
-    String? name,
-    String? relationship,
-    DateTime? dateOfBirth,
-    String? profileImageUrl,
-    bool clearDateOfBirth = false, // To explicitly set dateOfBirth to null
-    bool clearProfileImageUrl = false,
-  }) {
-    return FamilyMember(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      relationship: relationship ?? this.relationship,
-      dateOfBirth: clearDateOfBirth ? null : (dateOfBirth ?? this.dateOfBirth),
-      profileImageUrl: clearProfileImageUrl ? null : (profileImageUrl ??
-          this.profileImageUrl),
-    );
-  }
 }
 

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:math'; // For dummy data
 import '../../models/user_models/PatientBasicInfo.dart';
-import 'RelatedPatientDetailScreen.dart'; // The detail screen
-import '../../widgets/AppDrawer.dart'; // For the drawer
-import '../../models/user_roles.dart'; // For UserRole
+import 'RelatedPatientDetailScreen.dart';
+import '../../widgets/AppDrawer.dart';
 
-// 🔹 New wrapper model to hold patient info + relationship
+
 class LinkedFamilyMember {
   final PatientBasicInfo patient;
   final String relationship;
@@ -16,7 +14,6 @@ class LinkedFamilyMember {
   });
 }
 
-// Renamed and refactored for searching and linking by ID
 class LinkPatientByIdScreen extends StatefulWidget {
   final List<String> alreadyLinkedIds;
 
@@ -31,7 +28,6 @@ class _LinkPatientByIdScreenState extends State<LinkPatientByIdScreen> {
   final _relationshipController = TextEditingController();
   String _searchMessage = '';
 
-  // Dummy list of all patients in the "system"
   static final List<PatientBasicInfo> _allSystemPatients = [
     PatientBasicInfo(id: "PAT001", name: "Alice Wonderland", age: 30, gender: "Female", profileImageUrl: "https://i.pravatar.cc/150?u=PAT001", lastActivity: "Online 5 mins ago"),
     PatientBasicInfo(id: "PAT002", name: "Bob The Builder", age: 45, gender: "Male", profileImageUrl: "https://i.pravatar.cc/150?u=PAT002", lastActivity: "Active 1 hour ago"),
@@ -73,7 +69,6 @@ class _LinkPatientByIdScreenState extends State<LinkPatientByIdScreen> {
             (patient) => patient.id.toLowerCase() == enteredId.toLowerCase(),
       );
 
-      // Create linked member with relationship
       final LinkedFamilyMember linkedMember = LinkedFamilyMember(
         patient: foundPatient,
         relationship: enteredRelationship,
@@ -188,11 +183,8 @@ class _FamilyMemberScreenState extends State<FamilyMemberScreen> {
 
   Future<void> _fetchLinkedFamilyMembers() async {
     if (mounted) setState(() => _isLoading = true);
-    print("Fetching list of linked family members...");
-    await Future.delayed(const Duration(milliseconds: 800)); // Simulate API call
-
-    _linkedFamilyMembers = []; // Start empty (or load from backend later)
-
+    await Future.delayed(const Duration(milliseconds: 800));
+    _linkedFamilyMembers = [];
     if (mounted) setState(() => _isLoading = false);
   }
 
@@ -272,7 +264,7 @@ class _FamilyMemberScreenState extends State<FamilyMemberScreen> {
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
-    final String _name = "family"; // TODO: Replace with actual logged-in family member data
+    final String _name = "family";
     final String _email = "family@healthguard.com";
     final String? _profilePic = null;
 
@@ -311,12 +303,7 @@ class _FamilyMemberScreenState extends State<FamilyMemberScreen> {
           ),
         ),
       ),
-      drawer: AppDrawer(
-        currentUserRole: UserRole.familyMember,
-        userName: _name,
-        userEmail: _email,
-        userProfileImageUrl: _profilePic,
-      ),
+      drawer: AppDrawer(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _linkedFamilyMembers.isEmpty && _searchQuery.isEmpty

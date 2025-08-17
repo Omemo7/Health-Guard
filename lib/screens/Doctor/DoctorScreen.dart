@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:health_guard_flutter/models/user_roles.dart';
+import 'package:health_guard_flutter/models/UserRoles.dart';
 import 'dart:math'; // For dummy data
 import '../../models/user_models/PatientBasicInfo.dart';
 import '../../widgets/AppDrawer.dart'; // For the drawer
@@ -27,13 +27,9 @@ class _DoctorScreenState extends State<DoctorScreen> {
   Future<void> _fetchDoctorPatients() async {
     if (mounted) setState(() => _isLoading = true);
 
-    // --- TODO: ACTUAL API call to get the list of patients for this doctor ---
-    // This will involve authentication to identify the doctor.
     print("Fetching list of patients for the doctor...");
-    await Future.delayed(
-        const Duration(milliseconds: 1500)); // Simulate API call
+    
 
-    // --- Dummy Data Generation (replace with actual fetched data) ---
     final Random random = Random();
     const firstNames = [
       "Alice",
@@ -58,7 +54,7 @@ class _DoctorScreenState extends State<DoctorScreen> {
     _doctorPatients = List.generate(15, (index) {
       final name = '${firstNames[random.nextInt(
           firstNames.length)]} ${lastNames[random.nextInt(lastNames.length)]}';
-      final age = random.nextInt(60) + 18; // Age between 18 and 77
+      final age = random.nextInt(60) + 18;
       final gender = random.nextBool() ? "Male" : "Female";
       return PatientBasicInfo(
         id: 'PID${1000 + index}',
@@ -67,12 +63,11 @@ class _DoctorScreenState extends State<DoctorScreen> {
         gender: gender,
         profileImageUrl: random.nextBool()
             ? 'https://i.pravatar.cc/150?u=$name'
-            : null, // Random avatar
+            : null,
         lastActivity: "Last vital: ${random.nextInt(7) + 1} days ago",
       );
     });
-    _doctorPatients.sort((a, b) => a.name.compareTo(b.name)); // Sort by name
-    // --- End Dummy Data Generation ---
+    _doctorPatients.sort((a, b) => a.name.compareTo(b.name));
 
     if (mounted) setState(() => _isLoading = false);
   }
@@ -109,8 +104,7 @@ class _DoctorScreenState extends State<DoctorScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Patients"),
-        // backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        // foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -118,7 +112,7 @@ class _DoctorScreenState extends State<DoctorScreen> {
             tooltip: "Refresh List",
           )
         ],
-        bottom: PreferredSize( // Search Bar
+        bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -148,12 +142,7 @@ class _DoctorScreenState extends State<DoctorScreen> {
           ),
         ),
       ),
-      drawer: AppDrawer(
-        currentUserRole: UserRole.doctor, // <-- Set the role to admin
-        userName: _name,
-        userEmail: _email,
-        userProfileImageUrl: _profilePic,
-      ),
+      drawer: AppDrawer(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _filteredPatients.isEmpty
@@ -215,16 +204,7 @@ class _DoctorScreenState extends State<DoctorScreen> {
           },
         ),
       ),
-      // Optional: Floating Action Button to add a new patient (if applicable for doctors)
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     // TODO: Implement add new patient flow for doctor
-      //     ScaffoldMessenger.of(context).showSnackBar(
-      //       const SnackBar(content: Text('Add new patient action (TODO)')),
-      //     );
-      //   },
-      //   child: const Icon(Icons.person_add_alt_1_outlined),
-      // ),
+
     );
   }
 }

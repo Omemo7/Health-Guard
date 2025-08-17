@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:math'; // For dummy data
+import 'dart:math';
 
-// Import the new screen we will create
 import '../../models/user_models/DoctorSearchResultInfo.dart';
-import 'DoctorDetailsScreen.dart'; // Assuming you'll create this file
-String? _currentPatientLinkedDoctorId; // Example: 'DOC1002' if linked
-// In a real app, you'd fetch this when the patient's data is loaded.
+import 'DoctorDetailsScreen.dart';
+String? _currentPatientLinkedDoctorId;
 
 class LinkDoctorScreen extends StatefulWidget {
   final String? initiallyLinkedDoctorId;
@@ -20,7 +18,7 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<DoctorSearchResultInfo> _searchResults = [];
   List<DoctorSearchResultInfo> _dummyDoctorSuggestions = [
-  ]; // For predefined list
+  ];
   bool _isLoading = false;
   String _searchQuery = "";
   String? _statusMessage;
@@ -33,15 +31,13 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
     super.initState();
     _patientLinkedDoctorId =
         widget.initiallyLinkedDoctorId ?? _currentPatientLinkedDoctorId;
-    _loadDummyDoctorSuggestions(); // Load predefined suggestions
+    _loadDummyDoctorSuggestions();
     if (_patientLinkedDoctorId != null) {
       _fetchLinkedDoctorDetails(_patientLinkedDoctorId!);
     }
   }
 
   void _loadDummyDoctorSuggestions() {
-    // Predefined list of doctors if no search is active
-    // In a real app, this might come from a "suggested doctors" API endpoint
     _dummyDoctorSuggestions = [
       DoctorSearchResultInfo(
           doctorId: 'DOC2001',
@@ -56,17 +52,14 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
       DoctorSearchResultInfo(
           doctorId: 'DOC2003',
           name: 'Dr. Olivia Green (Neurologist)',
-          profileImageUrl: null, // Example with no image
+          profileImageUrl: null,
           isCurrentlyLinkedToThisDoctor: 'DOC2003' == _patientLinkedDoctorId),
     ];
-    // Ensure `isCurrentlyLinkedToThisDoctor` is updated if _patientLinkedDoctorId changes later
     _updateDoctorLinkStatus(_patientLinkedDoctorId);
   }
 
   void _updateDoctorLinkStatus(String? linkedDoctorId) {
-    // Update both search results and dummy suggestions
     _searchResults = _searchResults.map((doc) {
-      // Manually create a new instance as copyWith is not implemented
       return DoctorSearchResultInfo(
           doctorId: doc.doctorId,
           name: doc.name,
@@ -74,7 +67,6 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
           isCurrentlyLinkedToThisDoctor: doc.doctorId == linkedDoctorId,);
     }).toList();
     _dummyDoctorSuggestions = _dummyDoctorSuggestions.map((doc) {
-      // Manually create a new instance
       return DoctorSearchResultInfo(
           doctorId: doc.doctorId,
           name: doc.name,
@@ -85,9 +77,6 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
 
 
   Future<void> _fetchLinkedDoctorDetails(String doctorId) async {
-    // ... (existing _fetchLinkedDoctorDetails code - no change needed here for now)
-    // For simplicity, we'll assume the details fetched here are sufficient for _currentlyLinkedDoctorDetails
-    // If _currentlyLinkedDoctorDetails is the one to navigate with, make sure it's robustly populated.
     if (mounted) setState(() => _isLoading = true);
     await Future.delayed(const Duration(milliseconds: 500));
     final Random random = Random();
@@ -125,8 +114,6 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
   }
 
   Future<void> _searchDoctors(String query) async {
-    // ... (existing _searchDoctors method)
-    // Make sure to call _updateDoctorLinkStatus if the search results might contain the currently linked doctor
     if (query.isEmpty) {
       if (mounted) {
         setState(() {
@@ -134,7 +121,7 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
           _isLoading = false;
           _statusMessage = null;
           _updateDoctorLinkStatus(
-              _patientLinkedDoctorId); // Refresh link status on dummy list
+              _patientLinkedDoctorId);
         });
       }
       return;
@@ -149,7 +136,6 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
 
     await Future.delayed(const Duration(milliseconds: 1000));
     List<DoctorSearchResultInfo> results = [];
-    // ... (rest of your dummy search logic) ...
     if (query.isNotEmpty) {
       final Random random = Random();
       const firstNames = [
@@ -183,7 +169,7 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
                   ? 'https://i.pravatar.cc/150?u=$docId'
                   : null,
               isCurrentlyLinkedToThisDoctor: docId ==
-                  _patientLinkedDoctorId, // Ensure this is set
+                  _patientLinkedDoctorId,
             ),
           );
         }
@@ -197,49 +183,46 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
         if (results.isEmpty && query.isNotEmpty) {
           _statusMessage = "No doctors found matching '$query'.";
         }
-        _updateDoctorLinkStatus(_patientLinkedDoctorId); // Also update here
+        _updateDoctorLinkStatus(_patientLinkedDoctorId);
       });
     }
   }
 
   Future<void> _sendLinkRequest(DoctorSearchResultInfo doctorToLink) async {
-    // On success:
     if (mounted) {
       setState(() {
         _patientLinkedDoctorId = doctorToLink.doctorId;
         _currentPatientLinkedDoctorId = doctorToLink.doctorId;
-        // Manually create a new instance for _currentlyLinkedDoctorDetails
         _currentlyLinkedDoctorDetails = DoctorSearchResultInfo(
             doctorId: doctorToLink.doctorId,
             name: doctorToLink.name,
             profileImageUrl: doctorToLink.profileImageUrl,
             isCurrentlyLinkedToThisDoctor: true,);
-        _updateDoctorLinkStatus(doctorToLink.doctorId); // Update all lists
+        _updateDoctorLinkStatus(doctorToLink.doctorId);
 
         _isLoading = false;
-        _statusMessage = "Successfully linked with ${doctorToLink.name}."; // Changed message
+        _statusMessage = "Successfully linked with ${doctorToLink.name}.";
         _searchController.clear();
-        _searchQuery = ""; // Clear search query to show suggestions or linked doctor card
+        _searchQuery = "";
         _searchResults = [];
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Successfully linked with ${doctorToLink.name}.'), // Changed message
+          content: Text('Successfully linked with ${doctorToLink.name}.'),
           backgroundColor: Colors.green,
         ),
       );
-      // Navigate to the doctor detail screen after successful linking
-      _navigateToDoctorDetail(DoctorSearchResultInfo( // Manual "copyWith"
+      _navigateToDoctorDetail(DoctorSearchResultInfo(
           doctorId: doctorToLink.doctorId,
           name: doctorToLink.name,
           profileImageUrl: doctorToLink.profileImageUrl,
           isCurrentlyLinkedToThisDoctor: true,));
-    } else if (mounted) { // On failure
+    } else if (mounted) {
       setState(() {
         _isLoading = false;
         _statusMessage = "Could not link with ${doctorToLink.name}. Please try again.";
       });
-       ScaffoldMessenger.of(context).showSnackBar( // Added SnackBar for failure
+       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Could not link with ${doctorToLink.name}. Please try again.'),
           backgroundColor: Colors.red,
@@ -249,21 +232,18 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
   }
 
   Future<void> _unlinkCurrentDoctor() async {
-    // ... (existing _unlinkCurrentDoctor logic)
-    // On success:
     if (!mounted) return;
     final String doctorNameToDisplay = _currentlyLinkedDoctorDetails?.name ??
-        "your doctor"; // Capture before nullifying
+        "your doctor";
 
-    // ... (your unlinking simulation) ...
-    bool unlinkSuccess = true; // Simulate
+    bool unlinkSuccess = true;
 
     if (unlinkSuccess) {
       setState(() {
         _patientLinkedDoctorId = null;
         _currentPatientLinkedDoctorId = null;
         _currentlyLinkedDoctorDetails = null;
-        _updateDoctorLinkStatus(null); // Update all lists
+        _updateDoctorLinkStatus(null);
 
         _isLoading = false;
         _statusMessage = "Successfully unlinked from $doctorNameToDisplay.";
@@ -274,8 +254,7 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
           backgroundColor: Colors.orange,
         ),
       );
-    } else { // Unlink failed
-      // ... (rest of the method)
+    } else {
       setState(() {
         _isLoading = false;
         _statusMessage =
@@ -302,13 +281,9 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
 
   void _showLinkConfirmationDialog(DoctorSearchResultInfo doctor) {
     if (doctor.isCurrentlyLinkedToThisDoctor) {
-      // If already linked, navigate to their detail screen instead of showing dialog
       _navigateToDoctorDetail(doctor);
       return;
     }
-    // ... (rest of your existing _showLinkConfirmationDialog method)
-    // The onConfirm should still call _sendLinkRequest(doctor);
-    // _sendLinkRequest will then handle navigation on successful link.
     String title;
     String content;
     String confirmButtonText;
@@ -321,8 +296,8 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
       'You are currently linked with ${_currentlyLinkedDoctorDetails?.name ??
           "another doctor"}.\n\nIf you link with ${doctor
           .name}, your link with the previous doctor will be replaced.\n\nLink with ${doctor
-          .name}?'; // Updated content
-      confirmButtonText = 'Switch & Link'; // Updated button text
+          .name}?';
+      confirmButtonText = 'Switch & Link';
       onConfirm = () {
         Navigator.of(context).pop();
         _sendLinkRequest(doctor);
@@ -330,8 +305,8 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
     } else {
       title = 'Link with ${doctor.name}?';
       content = 'If you link with ${doctor
-          .name}, they will be able to view your health data.\n\nDo you want to link with this doctor?'; // Updated content
-      confirmButtonText = 'Link'; // Updated button text
+          .name}, they will be able to view your health data.\n\nDo you want to link with this doctor?';
+      confirmButtonText = 'Link';
       onConfirm = () {
         Navigator.of(context).pop();
         _sendLinkRequest(doctor);
@@ -383,8 +358,8 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
               ),
               child: const Text('Unlink'),
               onPressed: () {
-                Navigator.of(dialogContext).pop(); // Close the dialog
-                _unlinkCurrentDoctor(); // Proceed with unlinking
+                Navigator.of(dialogContext).pop();
+                _unlinkCurrentDoctor();
               },
             ),
           ],
@@ -393,18 +368,14 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
     );
   }
 
-  // ... (dispose method remains the same)
-
   Widget _buildCurrentlyLinkedDoctorCard() {
     if (_isLoading && _currentlyLinkedDoctorDetails == null &&
         _patientLinkedDoctorId != null) {
-      // Show loading indicator only when fetching initial linked doctor details
       return const Padding(
           padding: EdgeInsets.all(32.0),
           child: Center(child: CircularProgressIndicator()));
     }
     if (_currentlyLinkedDoctorDetails == null) {
-      // Show "Not Linked" message or suggested doctors if search is empty
       if (_searchQuery.isEmpty && _searchResults.isEmpty) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -463,10 +434,9 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
         );
       }
       return const SizedBox
-          .shrink(); // Hide if searching and no results yet, or if search results will show
+          .shrink();
     }
 
-    // Display the currently linked doctor
     final doctor = _currentlyLinkedDoctorDetails!;
     return Card(
       margin: const EdgeInsets.all(16.0),
@@ -476,7 +446,7 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
           .of(context)
           .colorScheme
           .primaryContainer,
-      child: InkWell( // Make the card tappable to navigate to detail screen
+      child: InkWell(
         onTap: () => _navigateToDoctorDetail(doctor),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -577,7 +547,7 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
     String buttonText;
     VoidCallback onPressedAction;
     Color buttonColor;
-    Color foregroundColor; // For text and icon color of the button
+    Color foregroundColor;
 
     bool isLinkedToThisDoc = doctor.doctorId == _patientLinkedDoctorId;
 
@@ -611,7 +581,7 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
           onPressed: onPressedAction,
           style: ElevatedButton.styleFrom(
             backgroundColor: buttonColor,
-            foregroundColor: foregroundColor, // Ensure text color contrasts
+            foregroundColor: foregroundColor,
           ),
           child: Text(buttonText),
         ),
@@ -645,7 +615,6 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
       body: Column(
         children: <Widget>[
           _buildCurrentlyLinkedDoctorCard(),
-          // Shows linked doctor or suggestions if not linked and not searching
 
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -662,20 +631,19 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
                   onPressed: () {
                     _searchController.clear();
                     _searchDoctors(
-                        ''); // Clear search results and show suggestions
+                        '');
                   },
                 )
                     : null,
               ),
               onChanged: (query) {
-                // You might want to debounce this in a real app
                 _searchDoctors(query);
               },
             ),
           ),
 
           if (_isLoading && _searchResults.isEmpty &&
-              _searchQuery.isNotEmpty) // Show loading indicator for search
+              _searchQuery.isNotEmpty)
             const Expanded(child: Center(child: CircularProgressIndicator()))
           else
             if (_searchResults.isNotEmpty)
@@ -689,7 +657,7 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
                 ),
               )
             else
-              if (_searchQuery.isNotEmpty && !_isLoading) // No search results
+              if (_searchQuery.isNotEmpty && !_isLoading)
                 Expanded(
                   child: Center(
                     child: Text(_statusMessage ??
@@ -699,14 +667,12 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
               else
                 if (showSuggestions && _dummyDoctorSuggestions.isNotEmpty &&
                     _currentlyLinkedDoctorDetails == null)
-                // This case is now handled inside _buildCurrentlyLinkedDoctorCard when not linked
-                // Or you can have a separate section if _buildCurrentlyLinkedDoctorCard only shows the "Not Linked" message
                   const SizedBox
-                      .shrink() // Already shown above or covered by _buildCurrentlyLinkedDoctorCard's logic
+                      .shrink()
                 else
                   if (_statusMessage != null && _searchQuery.isEmpty &&
                       _searchResults.isEmpty &&
-                      !showSuggestions) // E.g. "Link request sent"
+                      !showSuggestions)
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Center(child: Text(

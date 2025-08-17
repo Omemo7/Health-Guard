@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For TextInputFormatter
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -36,7 +36,6 @@ class _AddEditVitalLogScreenState extends State<AddEditVitalLogScreen> {
     for (var type in VitalType.values) {
       final initialValue = widget.initialLogEntry?.readings[type]
           ?.toStringAsFixed(
-        // Show one decimal for temp, none for others by default
         type == VitalType.temperature ? 1 : 0,
       ) ??
           '';
@@ -51,9 +50,7 @@ class _AddEditVitalLogScreenState extends State<AddEditVitalLogScreen> {
       context: context,
       initialDate: _selectedTimestamp,
       firstDate: DateTime(2000),
-      // Adjust as needed
       lastDate: DateTime.now().add(const Duration(days: 1)),
-      // Allow some future for correction
       helpText: 'SELECT DATE OF READING',
     );
 
@@ -80,7 +77,7 @@ class _AddEditVitalLogScreenState extends State<AddEditVitalLogScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save(); // Ensures onSaved is called if used
+      _formKey.currentState!.save();
 
       final Map<VitalType, double> readings = {};
       _vitalControllers.forEach((type, controller) {
@@ -135,16 +132,15 @@ class _AddEditVitalLogScreenState extends State<AddEditVitalLogScreen> {
     super.dispose();
   }
 
-  // Helper for icons, can be moved to models or a utility file if used elsewhere
   IconData _getIconForVital(VitalType type) {
     switch (type) {
       case VitalType.heartRate:
         return Icons.favorite_border_outlined;
       case VitalType.bloodPressureSystolic:
       case VitalType.bloodPressureDiastolic:
-        return Icons.monitor_heart_outlined; // Using general health icon
+        return Icons.monitor_heart_outlined;
       case VitalType.bloodOxygen:
-        return Icons.opacity_outlined; // Represents saturation/percentage
+        return Icons.opacity_outlined;
       case VitalType.temperature:
         return Icons.thermostat_outlined;
       default:
@@ -174,7 +170,6 @@ class _AddEditVitalLogScreenState extends State<AddEditVitalLogScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 80.0),
-        // Padding for FAB
         child: Form(
           key: _formKey,
           child: Column(
@@ -233,19 +228,11 @@ class _AddEditVitalLogScreenState extends State<AddEditVitalLogScreen> {
                       border: const OutlineInputBorder(),
                       prefixIcon: Icon(_getIconForVital(vitalType),
                           color: colorScheme.primary),
-                      // Clear button
-                      // suffixIcon: _vitalControllers[vitalType]!.text.isNotEmpty
-                      //     ? IconButton(
-                      //         icon: const Icon(Icons.clear),
-                      //         onPressed: () => _vitalControllers[vitalType]!.clear(),
-                      //       )
-                      //     : null,
                     ),
                     keyboardType: const TextInputType.numberWithOptions(
                         decimal: true),
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(
-                          r'^\d*\.?\d{0,1}')), // Allows one decimal place
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,1}')),
                     ],
                     validator: (value) {
                       if (value != null && value
@@ -255,7 +242,6 @@ class _AddEditVitalLogScreenState extends State<AddEditVitalLogScreen> {
                         if (numVal == null) {
                           return 'Invalid number';
                         }
-                        // Example range validation (customize as needed)
                         if (vitalType == VitalType.heartRate &&
                             (numVal < 20 || numVal > 300)) {
                           return 'Value out of typical range';
@@ -265,7 +251,7 @@ class _AddEditVitalLogScreenState extends State<AddEditVitalLogScreen> {
                           return 'Value out of typical range (°C)';
                         }
                       }
-                      return null; // No error if empty, as not all vitals are mandatory
+                      return null;
                     },
                   ),
                 );
@@ -285,7 +271,6 @@ class _AddEditVitalLogScreenState extends State<AddEditVitalLogScreen> {
                 textCapitalization: TextCapitalization.sentences,
               ),
               const SizedBox(height: 24.0),
-              // Moved save button to AppBar actions
             ],
           ),
         ),

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // For date formatting
-import 'package:uuid/uuid.dart'; // For new IDs
+import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
-import '../../models/user_models/FamilyMember.dart'; // Assuming FamilyMember model is here
+import '../../models/user_models/FamilyMember.dart';
 
 class AddEditFamilyMemberScreen extends StatefulWidget {
-  final FamilyMember? initialMember; // Null if adding, populated if editing
+  final FamilyMember? initialMember;
 
   const AddEditFamilyMemberScreen({super.key, this.initialMember});
 
@@ -20,8 +20,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
   late TextEditingController _relationshipController;
   DateTime? _selectedDateOfBirth;
 
-  // In a real app, image picking logic would be here
-  String? _profileImageUrl; // For simplicity, we'll just use a text field or keep existing
+  String? _profileImageUrl;
 
   bool get _isEditing => widget.initialMember != null;
 
@@ -38,9 +37,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
   Future<void> _pickDateOfBirth(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDateOfBirth ??
-          DateTime.now().subtract(const Duration(days: 365 * 10)),
-      // Default to 10 years ago or selected
+      initialDate: _selectedDateOfBirth ?? DateTime.now().subtract(const Duration(days: 365 * 10)),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
       helpText: 'Select Date of Birth',
@@ -54,18 +51,16 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      _formKey.currentState!
-          .save(); // Not strictly needed if using controllers directly
+      _formKey.currentState!.save();
 
       final member = FamilyMember(
         id: widget.initialMember?.id ?? const Uuid().v4(),
-        // Keep ID if editing, new if adding
         name: _nameController.text.trim(),
         relationship: _relationshipController.text.trim(),
         dateOfBirth: _selectedDateOfBirth,
-        profileImageUrl: _profileImageUrl, // Handle image update logic if implementing
+        profileImageUrl: _profileImageUrl,
       );
-      Navigator.of(context).pop(member); // Return the added/edited member
+      Navigator.of(context).pop(member);
     }
   }
 
@@ -96,7 +91,6 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              // --- TODO: Add image picker widget here ---
               if (_isEditing && _profileImageUrl != null)
                 Center(
                   child: Padding(
@@ -119,9 +113,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                   prefixIcon: Icon(Icons.person_outline),
                 ),
                 validator: (value) {
-                  if (value == null || value
-                      .trim()
-                      .isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Please enter a name.';
                   }
                   return null;
@@ -137,9 +129,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                   prefixIcon: Icon(Icons.people_alt_outlined),
                 ),
                 validator: (value) {
-                  if (value == null || value
-                      .trim()
-                      .isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Please enter the relationship.';
                   }
                   return null;
@@ -153,11 +143,8 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                       _selectedDateOfBirth == null
                           ? 'Date of Birth (Optional)'
                           : 'DOB: ${DateFormat.yMd().format(
-                          _selectedDateOfBirth!)}',
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .titleMedium,
+ _selectedDateOfBirth!)}',
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
                   TextButton.icon(
@@ -172,10 +159,6 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
               const SizedBox(height: 12.0),
               const Divider(),
 
-
-              // --- TODO: Add more fields as needed (e.g., gender, specific health conditions short summary) ---
-              // For simplicity, we are keeping it basic.
-
               const SizedBox(height: 24.0),
               ElevatedButton.icon(
                 icon: const Icon(Icons.save_alt_outlined),
@@ -184,8 +167,6 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                 onPressed: _submitForm,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  // backgroundColor: Theme.of(context).colorScheme.primary,
-                  // foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
             ],

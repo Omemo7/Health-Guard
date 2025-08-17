@@ -1,7 +1,3 @@
-import 'package:flutter/foundation.dart';
-
-
-
 
 enum VitalType {
   heartRate,
@@ -11,7 +7,7 @@ enum VitalType {
   temperature
 }
 
-// Centralized string and unit functions
+
 String vitalTypeToString(VitalType type,
     {bool short = false, bool includeUnit = false}) {
   String baseName;
@@ -55,9 +51,6 @@ String getVitalUnit(VitalType type) {
 
 
 
-
-
-@immutable
 class VitalLogEntry {
   final String id;
   final DateTime timestamp;

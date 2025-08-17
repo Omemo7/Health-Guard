@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/user_models/FamilyMember.dart';
 
-// This list now simulates all available users in the "system" that can be searched.
 final List<FamilyMember> _allSystemUsers = [
   FamilyMember(
     id: "laura_s_88",
@@ -15,7 +14,6 @@ final List<FamilyMember> _allSystemUsers = [
     name: "Michael Smith Jr.",
     relationship: "Child",
     dateOfBirth: DateTime(2015, 3, 10),
-    // profileImageUrl: null,
   ),
   FamilyMember(
     id: "sarah_c_65",
@@ -36,7 +34,6 @@ final List<FamilyMember> _allSystemUsers = [
     name: "Jane Roe",
     relationship: "Colleague",
     dateOfBirth: DateTime(1992, 5, 15),
-    // No image
   ),
 ];
 
@@ -49,7 +46,6 @@ class ManageFamilyMembersScreen extends StatefulWidget {
 }
 
 class _ManageFamilyMembersScreenState extends State<ManageFamilyMembersScreen> {
-  // Static cache for linked members across the app session
   static List<FamilyMember> _sessionLinkedMembers = [];
 
   List<FamilyMember> _linkedFamilyMembers = [];
@@ -62,7 +58,6 @@ class _ManageFamilyMembersScreenState extends State<ManageFamilyMembersScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize from static cache and then refresh/load
     _linkedFamilyMembers = List.from(_sessionLinkedMembers);
     _handleRefreshLinkedMembers();
   }
@@ -75,13 +70,8 @@ class _ManageFamilyMembersScreenState extends State<ManageFamilyMembersScreen> {
 
   Future<void> _handleRefreshLinkedMembers() async {
     if (mounted) setState(() => _isLoadingInitialLinks = true);
-    await Future.delayed(const Duration(milliseconds: 300)); // Simulate API call or cache read
+    await Future.delayed(const Duration(milliseconds: 300));
 
-    // Sync with the session cache
-    // No need to re-assign from _sessionLinkedMembers if initState did it,
-    // but ensure it's sorted and state is updated for the UI.
-    // If this is a true "refresh from server" in a real app, you'd fetch here.
-    // For this simulation, we ensure the local list matches the static one.
     _linkedFamilyMembers = List.from(_sessionLinkedMembers);
     _linkedFamilyMembers.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
@@ -155,8 +145,7 @@ class _ManageFamilyMembersScreenState extends State<ManageFamilyMembersScreen> {
         _linkedFamilyMembers.add(userToLink);
         _linkedFamilyMembers.sort((a, b) =>
             a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-        
-        // Update static cache
+
         if (!_sessionLinkedMembers.any((m) => m.id == userToLink.id)) {
           _sessionLinkedMembers.add(userToLink);
           _sessionLinkedMembers.sort((a, b) => 
@@ -216,7 +205,6 @@ class _ManageFamilyMembersScreenState extends State<ManageFamilyMembersScreen> {
 
     if (mounted) {
       _linkedFamilyMembers.removeWhere((m) => m.id == member.id);
-      // Update static cache
       _sessionLinkedMembers.removeWhere((m) => m.id == member.id);
 
       ScaffoldMessenger.of(context).showSnackBar(

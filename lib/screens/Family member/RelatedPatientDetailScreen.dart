@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:math'; // For dummy data generation
+import 'dart:math';
 
 
 import '../../models/health_models/MonthlyHealthSummary.dart';
@@ -10,7 +10,7 @@ import '../../widgets/charts/overall_health_chart_widget.dart';
 import '../../widgets/charts/vital_chart_widget.dart';
 
 class RelatedPatientDetailScreen extends StatefulWidget {
-  final PatientBasicInfo memberInfo; // The family member whose data is being viewed
+  final PatientBasicInfo memberInfo;
   final String relationship;
   const RelatedPatientDetailScreen({super.key, required this.memberInfo, required this.relationship});
 
@@ -23,7 +23,7 @@ class _RelatedPatientDetailScreenState extends State<RelatedPatientDetailScreen>
   late List<MonthlyHealthSummary> _memberMonthlyHealthData;
   late Map<VitalType, List<VitalDataPoint>> _memberVitalData;
   bool _isLoading = true;
-  final Random _random = Random(); // For dummy data
+  final Random _random = Random();
 
   @override
   void initState() {
@@ -34,16 +34,9 @@ class _RelatedPatientDetailScreenState extends State<RelatedPatientDetailScreen>
   Future<void> _fetchDataForFamilyMember(String memberId) async {
     if (mounted) setState(() => _isLoading = true);
 
-    // --- TODO: ACTUAL API call to get data for the specific memberId ---
-    // The backend MUST ensure the logged-in family member is authorized
-    // to view this specific member's data.
     print("Fetching health data for family member ID: $memberId (${widget
         .memberInfo.name})");
-    await Future.delayed(const Duration(seconds: 1)); // Simulate API call
-
-    // --- Dummy Data Generation (replace with actual fetched data) ---
-    // You might want slightly different dummy data patterns or ranges
-    // if family members see slightly different views or data points.
+    await Future.delayed(const Duration(seconds: 1));
     _memberMonthlyHealthData = List.generate(6, (index) {
       final monthDate = DateTime.now().subtract(Duration(days: index * 30));
       final monthName = _getMonthName(monthDate.month);
@@ -75,7 +68,6 @@ class _RelatedPatientDetailScreenState extends State<RelatedPatientDetailScreen>
         return VitalDataPoint(date, value);
       });
     }
-    // --- End Dummy Data Generation ---
 
     if (mounted) setState(() => _isLoading = false);
   }
@@ -118,7 +110,7 @@ class _RelatedPatientDetailScreenState extends State<RelatedPatientDetailScreen>
         backgroundColor: Theme
             .of(context)
             .colorScheme
-            .surfaceTint, // Example theming
+            .surfaceTint,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -160,8 +152,7 @@ class _RelatedPatientDetailScreenState extends State<RelatedPatientDetailScreen>
             ),
             OverallHealthChartWidget(
               healthData: _memberMonthlyHealthData,
-              barColor: primaryColor.withOpacity(
-                  0.7), // Slightly different color potentially
+              barColor: primaryColor.withOpacity(0.7),
             ),
             const SizedBox(height: 24.0),
 
@@ -180,9 +171,6 @@ class _RelatedPatientDetailScreenState extends State<RelatedPatientDetailScreen>
               );
             }).toList(),
             const SizedBox(height: 24.0),
-            // TODO: Add any family-member-specific actions
-            // e.g., "Send a supportive message" (requires more features)
-            // or "View upcoming appointments for [Member Name]"
           ],
         ),
       ),

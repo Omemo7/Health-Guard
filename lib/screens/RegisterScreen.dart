@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import for date formatting
+import 'package:intl/intl.dart'; 
 
-// Enum to represent user roles - Admin is still here for internal logic if needed
-// but won't be offered as a direct choice in this screen.
+
 enum UserRole { admin, doctor, patient, familyMember, none }
 
-// Enum for Gender
+
 enum Gender { none, male, female }
 
-// Helper function to convert enum to a displayable string
+
 String roleToString(UserRole role) {
   switch (role) {
     case UserRole.admin:
-      return 'Admin'; // Still useful for internal logic/display if an admin is viewing users
+      return 'Admin'; 
     case UserRole.doctor:
       return 'Doctor';
     case UserRole.patient:
@@ -21,25 +20,25 @@ String roleToString(UserRole role) {
       return 'Family';
     case UserRole.none:
     default:
-      return 'None'; // Or throw an error if a role should always be selected
+      return 'None'; 
   }
 }
 
-// Helper to get an icon for the role card
+
 IconData getIconForRole(UserRole role) {
   switch (role) {
     case UserRole.doctor:
-      return Icons.medical_services; // Example icon
+      return Icons.medical_services; 
     case UserRole.patient:
-      return Icons.person_outline; // Example icon
+      return Icons.person_outline; 
     case UserRole.familyMember:
-      return Icons.group_outlined; // Example icon
+      return Icons.group_outlined; 
     default:
       return Icons.help_outline;
   }
 }
 
-// Helper to get an icon for the gender card
+
 IconData getIconForGender(Gender gender) {
   switch (gender) {
     case Gender.male:
@@ -47,7 +46,7 @@ IconData getIconForGender(Gender gender) {
     case Gender.female:
       return Icons.female;
     default:
-      return Icons.help_outline; // Should not happen if one is selected
+      return Icons.help_outline; 
   }
 }
 
@@ -63,19 +62,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController(); // For displaying the selected date
+  final TextEditingController _dobController = TextEditingController(); 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
-  // Add more controllers if needed for specific roles (e.g., doctor's license, patient's DOB)
+  
 
-  UserRole _selectedRole = UserRole.none; // Default to no role selected
-  Gender _selectedGender = Gender.none; // Default to no gender selected
-  DateTime? _selectedDate; // To store the selected date from the picker
+  UserRole _selectedRole = UserRole.none; 
+  Gender _selectedGender = Gender.none; 
+  DateTime? _selectedDate; 
   bool _isLoading = false;
 
-  // List of roles available for registration on this screen
+  
   final List<UserRole> _availableRoles = [
     UserRole.doctor,
     UserRole.patient,
@@ -110,60 +109,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
       String name = _nameController.text;
       String email = _emailController.text;
       String phone = _phoneController.text;
-      String dob = _dobController.text; // Or format _selectedDate as needed for backend
+      String dob = _dobController.text; 
       String gender = _selectedGender == Gender.male ? 'Male' : 'Female';
       String username = _usernameController.text;
       String password = _passwordController.text;
       String role = roleToString(_selectedRole);
 
-      // --- TODO: Implement your actual registration logic here ---
-      // This will likely involve an API call to your backend.
-      // Send 'name', 'email', 'phone', 'dob', 'gender', 'username', 'password', and 'role'.
-      //
-      // Example:
-      // try {
-      //   final response = await http.post(
-      //     Uri.parse('YOUR_REGISTER_API_ENDPOINT'),
-      //     body: {
-      //       'name': name,
-      //       'email': email,
-      //       'phone': phone,
-      //       'dateOfBirth': _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : '', // Send formatted date
-      //       'gender': gender,
-      //       'username': username,
-      //       'password': password,
-      //       'role': role,
-      //       // if (_selectedRole == UserRole.doctor) 'licenseNumber': _licenseController.text,
-      //     },
-      //   );
-      //
-      //   if (response.statusCode == 201) {
-      //     print('Registration successful: ${response.body}');
-      //     if (mounted) {
-      //       ScaffoldMessenger.of(context).showSnackBar(
-      //         SnackBar(content: Text('Registration successful! Please login.')),
-      //       );
-      //       Navigator.pop(context); // Go back to login screen
-      //     }
-      //   } else {
-      //     print('Registration failed: ${response.statusCode} - ${response.body}');
-      //      if (mounted) {
-      //       ScaffoldMessenger.of(context).showSnackBar(
-      //         SnackBar(content: Text('Registration failed: Check details or try again.')), // More generic error
-      //       );
-      //     }
-      //   }
-      // } catch (e) {
-      //   print('Error during registration: $e');
-      //   if (mounted) {
-      //     ScaffoldMessenger.of(context).showSnackBar(
-      //       SnackBar(content: Text('An error occurred. Please try again.')),
-      //     );
-      //   }
-      // }
-      // --- End of placeholder registration logic ---
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
 
-      // Simulate a network request for now
+      
       await Future.delayed(const Duration(seconds: 2));
       print(
           'Simulated Registration: Name: $name, Email: $email, Phone: $phone, DOB: $dob, Gender: $gender, User: $username, Role: $role');
@@ -176,8 +160,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Registration attempt for $username as $role')),
         );
-        // Optionally navigate back to login or to a success page
-        Navigator.pop(context); // Go back to the previous screen (likely login)
+        
+        Navigator.pop(context); 
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -195,7 +179,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _usernameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    // Dispose other controllers if added
+    
     super.dispose();
   }
 
@@ -203,13 +187,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(1900), // Adjust as needed
-      lastDate: DateTime.now(), // User cannot select a future date
+      firstDate: DateTime(1900), 
+      lastDate: DateTime.now(), 
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
-        _dobController.text = DateFormat('yyyy-MM-dd').format(picked); // Using intl for formatting
+        _dobController.text = DateFormat('yyyy-MM-dd').format(picked); 
       });
     }
   }
@@ -261,7 +245,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     bool isSelected = _selectedGender == gender;
     String genderText = gender == Gender.male ? 'Male' : 'Female';
 
-    return Expanded( // Use Expanded so cards take available space in a Row
+    return Expanded( 
       child: GestureDetector(
         onTap: () {
           setState(() {
@@ -278,7 +262,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 12.0), // Adjusted padding for smaller cards
+            padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 12.0), 
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -305,25 +289,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
 
-  // --- TODO: Conditionally display additional fields based on _selectedRole ---
+  
   Widget _buildRoleSpecificFields() {
     if (_selectedRole == UserRole.doctor) {
-      // Example: Add a field for Medical License
+      
       return Padding(
         padding: const EdgeInsets.only(top: 16.0),
         child: TextFormField(
-          // controller: _medicalLicenseController, // You would need to define this controller
+          
           decoration: const InputDecoration(
             labelText: 'Medical License Number',
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.badge_outlined),
           ),
-          // validator: (value) { // Add validation if required
-          //   if (value == null || value.isEmpty) {
-          //     return 'Please enter medical license number';
-          //   }
-          //   return null;
-          // },
+          
+          
+          
+          
+          
+          
         ),
       );
     }
@@ -367,7 +351,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 24.0),
 
-              // Name Field
+              
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -387,7 +371,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 16.0),
 
-              // Email Field
+              
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(
@@ -408,7 +392,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 16.0),
 
-              // Phone Field
+              
               TextFormField(
                 controller: _phoneController,
                 decoration: const InputDecoration(
@@ -421,8 +405,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your phone number';
                   }
-                  // Basic phone number validation (adapt as needed)
-                  if (!RegExp(r'^\+?[0-9]{7,15}$').hasMatch(value)) { // Loosened a bit for more general use
+                  
+                  if (!RegExp(r'^\+?[0-9]{7,15}$').hasMatch(value)) { 
                     return 'Please enter a valid phone number';
                   }
                   return null;
@@ -430,11 +414,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 16.0),
 
-              // Date of Birth Field
+              
               TextFormField(
                 controller: _dobController,
                 decoration: InputDecoration(
-                  labelText: 'Date of Birth', // Removed YYYY-MM-DD as format is now handled by picker
+                  labelText: 'Date of Birth', 
                   hintText: 'Select your date of birth',
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.calendar_today_outlined),
@@ -456,26 +440,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Please select your date of birth';
                   }
-                  // Optional: Age validation (e.g., must be 18+)
-                  // if (_selectedDate != null) {
-                  //   final today = DateTime.now();
-                  //   final age = today.year - _selectedDate!.year -
-                  //       ((today.month > _selectedDate!.month || (today.month == _selectedDate!.month && today.day >= _selectedDate!.day)) ? 0 : 1);
-                  //   if (age < 18) {
-                  //     return 'You must be at least 18 years old';
-                  //   }
-                  // }
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
                   return null;
                 },
               ),
               const SizedBox(height: 16.0),
 
-              // Gender Selection
+              
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Text(
                   'Select Your Gender:',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.black54), // Subtler title
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.black54), 
                 ),
               ),
               Row(
@@ -488,7 +471,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 24.0),
 
 
-              // Username Field
+              
               TextFormField(
                 controller: _usernameController,
                 decoration: const InputDecoration(
@@ -508,7 +491,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 16.0),
 
-              // Password Field
+              
               TextFormField(
                 controller: _passwordController,
                 decoration: const InputDecoration(
@@ -530,7 +513,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 16.0),
 
-              // Confirm Password Field
+              
               TextFormField(
                 controller: _confirmPasswordController,
                 decoration: const InputDecoration(
@@ -550,9 +533,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
               ),
 
-              _buildRoleSpecificFields(), // Conditionally display role-specific fields
+              _buildRoleSpecificFields(), 
 
-              const SizedBox(height: 24.0), // Space before button
+              const SizedBox(height: 24.0), 
 
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -563,7 +546,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  minimumSize: const Size(double.infinity, 50), // Make button wider
+                  minimumSize: const Size(double.infinity, 50), 
                 ),
                 child: const Text('Register'),
               ),
@@ -574,7 +557,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
                 child: const Text('Already have an account? Login'),
               ),
-              const SizedBox(height: 20.0), // Padding at the bottom for better scrollability
+              const SizedBox(height: 20.0), 
             ],
           ),
         ),

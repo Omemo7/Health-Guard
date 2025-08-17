@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-// Correctly import your models (this provides VitalLogEntry, VitalType, vitalTypeToString, getVitalUnit, _dummyVitalLogEntries)
-
 import '../../models/health_models/VitalLogEntry.dart';
-import 'AddEditVitalLogScreen.dart'; // To navigate for adding/editing
+import 'AddEditVitalLogScreen.dart';
 import 'package:uuid/uuid.dart';
 
-// Dummy data (ensure Uuid is available via import)
 final List<VitalLogEntry> _dummyVitalLogEntries = [
   VitalLogEntry(
     id: const Uuid().v4(),
@@ -72,15 +69,12 @@ class _ManageVitalsScreenState extends State<ManageVitalsScreen> {
     if (!mounted) return;
     setState(() => _isLoading = true);
 
-    // Simulate API call
     await Future.delayed(const Duration(milliseconds: 600));
 
     if (!mounted) return;
 
-    // Use dummy data and ensure it's sorted (newest first)
-    // In a real app, this data would come from a service/database, already sorted or sorted here.
     _dummyVitalLogEntries.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-    _vitalLogs = List.from(_dummyVitalLogEntries); // Create a mutable copy
+    _vitalLogs = List.from(_dummyVitalLogEntries);
 
     setState(() => _isLoading = false);
   }
@@ -94,25 +88,21 @@ class _ManageVitalsScreenState extends State<ManageVitalsScreen> {
     );
 
     if (result != null && mounted) {
-      // --- TODO: Persist change to backend/local storage ---
-      // For now, we update the local list and the dummy list for demo continuity
       setState(() {
         final existingIndex = _vitalLogs.indexWhere((log) =>
         log.id == result.id);
-        if (existingIndex != -1) { // Editing existing
+        if (existingIndex != -1) {
           _vitalLogs[existingIndex] = result;
-          // Also update the source dummy list if you want changes to reflect there across loads in demo
           final dummyIndex = _dummyVitalLogEntries.indexWhere((log) =>
           log.id == result.id);
           if (dummyIndex != -1) {
             _dummyVitalLogEntries[dummyIndex] = result;
           }
-        } else { // Adding new
+        } else {
           _vitalLogs.add(result);
-          _dummyVitalLogEntries.add(result); // Add to dummy for demo
+          _dummyVitalLogEntries.add(result);
         }
-        _vitalLogs.sort((a, b) =>
-            b.timestamp.compareTo(a.timestamp)); // Re-sort
+        _vitalLogs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -156,7 +146,6 @@ class _ManageVitalsScreenState extends State<ManageVitalsScreen> {
   }
 
   void _deleteLog(VitalLogEntry logToDelete) {
-    // --- TODO: Persist this deletion to your backend/local storage ---
     if (mounted) {
       setState(() {
         _vitalLogs.removeWhere((item) => item.id == logToDelete.id);
@@ -172,7 +161,6 @@ class _ManageVitalsScreenState extends State<ManageVitalsScreen> {
     }
   }
 
-  // Helper for icons, can be moved to models or a utility file if used elsewhere
   IconData _getIconForVital(VitalType type) {
     switch (type) {
       case VitalType.heartRate:
@@ -263,20 +251,16 @@ class _ManageVitalsScreenState extends State<ManageVitalsScreen> {
       )
           : ListView.separated(
         padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 80.0),
-        // Padding for FAB
         itemCount: _vitalLogs.length,
         separatorBuilder: (context, index) => const SizedBox(height: 8),
         itemBuilder: (context, index) {
           final log = _vitalLogs[index];
           return Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             clipBehavior: Clip.antiAlias,
-            // Ensures InkWell respects border radius
             child: InkWell(
               onTap: () => _navigateToAddEditLogScreen(logEntry: log),
-              // Edit on tap
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -338,9 +322,7 @@ class _ManageVitalsScreenState extends State<ManageVitalsScreen> {
                     else
                       Wrap(
                         spacing: 8.0,
-                        // Horizontal space between chips
                         runSpacing: 8.0,
-                        // Vertical space between lines of chips
                         children: log.readings.entries.map((entry) {
                           return _buildVitalChip(
                               entry.key, entry.value, colorScheme, textTheme);
@@ -380,8 +362,6 @@ class _ManageVitalsScreenState extends State<ManageVitalsScreen> {
         onPressed: () => _navigateToAddEditLogScreen(),
         label: const Text('New Vital Log'),
         icon: const Icon(Icons.add_outlined),
-        // backgroundColor: colorScheme.tertiary,
-        // foregroundColor: colorScheme.onTertiary,
       ),
     );
   }

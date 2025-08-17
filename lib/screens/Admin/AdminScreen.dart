@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import '../../models/user_models/Doctor.dart';
-import '../../models/user_roles.dart';
 import '../../widgets/AppDrawer.dart';
 import '../Admin/DoctorDetailsScreen.dart';
 
@@ -130,11 +129,7 @@ class _AdminScreenState extends State<AdminScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const AppDrawer(
-        userName: 'Admin User',
-        userEmail: 'admin@example.com',
-        currentUserRole: UserRole.admin,
-      ),
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: const Text('Doctors List'),
         actions: [

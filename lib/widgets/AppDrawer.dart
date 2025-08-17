@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:health_guard_flutter/screens/Family%20member/RelatedPatientDetailScreen.dart';
+import 'package:health_guard_flutter/models/profile_models/AdminProfile.dart';
+import 'package:health_guard_flutter/models/profile_models/DoctorProfile.dart';
+import 'package:health_guard_flutter/models/profile_models/FamilyMemberProfile.dart';
+import 'package:health_guard_flutter/models/profile_models/PatientProfile.dart';
+import 'package:health_guard_flutter/screens/Patient/LinkDoctorScreen.dart';
 import 'package:health_guard_flutter/screens/Patient/ManageFamilyMembersScreen.dart';
+import 'package:health_guard_flutter/screens/Patient/ManageVitalsScreen.dart';
 import 'package:health_guard_flutter/screens/Patient/MedicationReminderScreen.dart';
-import 'package:health_guard_flutter/screens/Patient/LinkDoctorScreen.dart'; // Added import for LinkDoctorScreen
 import 'package:health_guard_flutter/screens/profile/ProfileScreen.dart';
-import '../models/user_roles.dart';
-import '../screens/Patient/ManageVitalsScreen.dart'; // Import your UserRole enum
-// import 'package:health_guard_flutter/screens/profile/ProfileScreen.dart'; // Duplicate import removed
+
+import '../models/UserRoles.dart'; 
+import '../models/profile_models/BaseProfile.dart'; 
+import '../services/AuthService.dart';
+
+
 
 class PlaceholderScreen extends StatelessWidget {
   final String title;
@@ -22,24 +29,31 @@ class PlaceholderScreen extends StatelessWidget {
   }
 }
 
+
 class AppDrawer extends StatelessWidget {
-  final UserRole currentUserRole;
-  final String? userName;
-  final String? userEmail;
-  final String? userProfileImageUrl;
+  const AppDrawer({super.key}); 
 
-  const AppDrawer({
-    super.key,
-    required this.currentUserRole,
-    this.userName,
-    this.userEmail,
-    this.userProfileImageUrl,
-  });
+  UserRole _getUserRole(UserType? userType) {
+    if (userType == null) return UserRole.unknown;
+    switch (userType) {
+      case UserType.patient:
+        return UserRole.patient;
+      case UserType.doctor:
+        return UserRole.doctor;
+      case UserType.familyMember:
+        return UserRole.familyMember;
+      case UserType.admin:
+        return UserRole.admin;
+      default:
+        return UserRole.unknown;
+    }
+  }
 
-  Widget _buildDrawerHeader(BuildContext context) {
+  Widget _buildDrawerHeader(BuildContext context, BaseProfile? userProfile, UserRole currentUserRole) {
     String roleText;
     IconData roleIcon;
 
+    
     switch (currentUserRole) {
       case UserRole.patient:
         roleText = "Patient Portal";
@@ -66,53 +80,46 @@ class AppDrawer extends StatelessWidget {
 
     return UserAccountsDrawerHeader(
       accountName: Text(
-        userName ?? roleText,
+        userProfile?.name ?? roleText,
         style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
             color: Colors.deepPurple.shade900),
       ),
       accountEmail: Text(
-        userEmail ??
+        userProfile?.email ??
             (currentUserRole == UserRole.unknown
                 ? "Not logged in"
-                : "Role: ${currentUserRole.name.toUpperCase()}"),
+                : "Role: ${currentUserRole.name.toUpperCase()}"), 
         style: TextStyle(
           color: Colors.deepPurple.shade800,
         ),
       ),
-      currentAccountPicture: CircleAvatar(backgroundColor: Colors.deepPurple,
-        backgroundImage: userProfileImageUrl != null ? NetworkImage(
-            userProfileImageUrl!) : null,
-        child: userProfileImageUrl == null
+      currentAccountPicture: CircleAvatar(
+        backgroundColor: Colors.deepPurple,
+        backgroundImage: userProfile?.profileImageUrl != null
+            ? NetworkImage(userProfile!.profileImageUrl!)
+            : null,
+        child: userProfile?.profileImageUrl == null
             ? Icon(
-          roleIcon,
-          size: 40,
-          color: Theme
-              .of(context)
-              .colorScheme
-              .primaryContainer,
-        )
+                roleIcon,
+                size: 40,
+                color: Theme.of(context).colorScheme.primaryContainer,
+              )
             : null,
       ),
       decoration: BoxDecoration(
-        color: Theme
-            .of(context)
-            .colorScheme
-            .primaryContainer,
+        color: Theme.of(context).colorScheme.primaryContainer,
       ),
       otherAccountsPictures: [
         CircleAvatar(
-          backgroundColor: Theme
-              .of(context) // Changed background for better visibility if needed
-              .colorScheme
-              .secondaryContainer,
+          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
           child: SvgPicture.asset(
-            'assets/icons/health-insurance.svg', // Use relative path from pubspec.yaml
-            width: 32.0, // Adjusted size for better appearance in CircleAvatar
+            'assets/icons/health-insurance.svg',
+            width: 32.0,
             height: 32.0,
-            colorFilter: ColorFilter.mode(
-              Colors.deepPurple, // Changed color for better contrast
+            colorFilter: const ColorFilter.mode(
+              Colors.deepPurple,
               BlendMode.srcIn,
             ),
           ),
@@ -127,162 +134,76 @@ class AppDrawer extends StatelessWidget {
     required GestureTapCallback onTap,
     bool isSelected = false,
   }) {
-    // Using a Builder to ensure context is available for Theme.of
     return Builder(builder: (context) {
       return ListTile(
-        leading: Icon(icon, color: isSelected ? Theme
-            .of(context)
-            .colorScheme
-            .primary : Theme
-            .of(context)
-            .iconTheme
-            .color),
+        leading: Icon(icon, color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).iconTheme.color),
         title: Text(text, style: TextStyle(
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color: isSelected ? Theme
-              .of(context)
-              .colorScheme
-              .primary : Theme
-              .of(context)
-              .textTheme
-              .bodyLarge
-              ?.color,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).textTheme.bodyLarge?.color,
         )),
         selected: isSelected,
-        selectedTileColor: isSelected ? Theme
-            .of(context)
-            .colorScheme
-            .primary
-            .withOpacity(0.1) : null,
+        selectedTileColor: isSelected ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : null,
         tileColor: Colors.transparent,
-        // Ensure it doesn't override parent's color unless selected
         onTap: onTap,
       );
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final BaseProfile? userProfile = AuthService().userProfile;
+    final UserRole currentUserRole = _getUserRole(userProfile?.userType);
+
     List<Widget> drawerItems = [];
 
-    // --- Common Items for all logged-in users (adjust as needed) ---
-    if (currentUserRole != UserRole.unknown) {
-      // My Profile & Settings (as before)
-      drawerItems.addAll([
+    
+    if (userProfile != null) {
+      drawerItems.add(
         _buildDrawerListItem(
           icon: Icons.person_outline,
           text: 'My Profile',
-          // isSelected: ModalRoute.of(context)?.settings.name == '/profile',
           onTap: () {
-            Navigator.pop(context); // Close the drawer
-
-            // --- Temporary Mock Profile Data ---
-            // You MUST replace this with your actual user profile data logic
-            BaseProfile mockProfile;
-            switch (currentUserRole) {
-              case UserRole.patient:
-                mockProfile = PatientProfile(
-                  id: "patient123",
-                  name: userName ?? "Patient User",
-                  email: userEmail ?? "patient@example.com",
-                  profileImageUrl: userProfileImageUrl,
-                  // Add other patient-specific fields if needed for initial display
-                );
-                break;
-              case UserRole.doctor:
-                mockProfile = DoctorProfile(
-                  id: "doctor456",
-                  name: userName ?? "Doctor User",
-                  email: userEmail ?? "doctor@example.com",
-                  profileImageUrl: userProfileImageUrl,
-                  // Add other doctor-specific fields
-                );
-                break;
-              case UserRole.familyMember:
-                mockProfile = FamilyMemberProfile(
-                  id: "family789",
-                  name: userName ?? "Family Member",
-                  email: userEmail ?? "family@example.com",
-                  profileImageUrl: userProfileImageUrl,
-                  linkedPatientId: "unknown_patient", // This can remain as a placeholder
-                  relationshipToPatient: null,      // Ensure this is null or ""
-                );
-                break;
-
-              case UserRole.admin: // This case should already exist
-                mockProfile = AdminProfile( // Ensure this is AdminProfile
-                  id: "admin001",
-                  name:  "koko",
-                  username: userName ??"Admin User",
-                  email: userEmail ?? "admin@example.com",
-                  profileImageUrl: null,
-
-                );
-                break;
-            // ...
-              default: // Includes UserRole.admin and UserRole.unknown
-              // For Admin or Unknown, maybe navigate to a different profile screen
-              // or show a generic one. For now, let's use a basic BaseProfile.
-                mockProfile = BaseProfile(
-                    id: "user000",
-                    name: userName ?? "User",
-                    email: userEmail ?? "user@example.com",
-                    profileImageUrl: userProfileImageUrl,
-                    userType: UserType
-                        .patient // Or a generic type if you add one
-                );
-            // Alternatively, for Admin/Unknown, you might not want to show this profile screen
-            // or show a different message/screen.
-            // For this example, we'll proceed but ideally, Admins might have a different profile view.
-            }
-            // --- End of Temporary Mock Profile Data ---
-
+            Navigator.pop(context); 
+            
+            
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => ProfileScreen(userProfile: mockProfile),
+                builder: (_) => ProfileScreen(userProfile: userProfile),
               ),
             );
           },
         ),
-      ]);
+      );
     }
 
-    // --- Role-Specific Items ---
+    
+    
     switch (currentUserRole) {
       case UserRole.patient:
-      // ... (Patient items as before, including Medication Reminders)
         drawerItems.addAll([
           _buildDrawerListItem(
-          icon: Icons.monitor_heart,
-          text: 'Vitals',
-          onTap: () {
-            Navigator.pop(context);
-            Navigator.push(context, MaterialPageRoute(
-                builder: (_) =>
-                const ManageVitalsScreen()));
-          },
-        ),
+            icon: Icons.monitor_heart,
+            text: 'Vitals',
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageVitalsScreen()));
+            },
+          ),
           _buildDrawerListItem(
             icon: Icons.medical_services,
             text: 'Doctor',
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (_) =>
-                  const LinkDoctorScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const LinkDoctorScreen()));
             },
           ),
-
           _buildDrawerListItem(
             icon: Icons.groups,
             text: 'Family Members',
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (_) =>
-                  const ManageFamilyMembersScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageFamilyMembersScreen()));
             },
           ),
           _buildDrawerListItem(
@@ -290,53 +211,54 @@ class AppDrawer extends StatelessWidget {
             text: 'Medication Reminders',
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (_) =>
-                  const MedicationReminderScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const MedicationReminderScreen()));
             },
           ),
         ]);
         break;
       case UserRole.doctor:
-      // ... (Doctor items as before)
+        
+        
+        
         break;
       case UserRole.familyMember:
-
+        
+        
+        
         break;
-      case UserRole.admin: // <-- Added Admin case for specific items
-
+      case UserRole.admin:
+        
+        
+        
         break;
       case UserRole.unknown:
+        
         break;
     }
 
-
     drawerItems.add(const Divider());
 
-
-    if (currentUserRole != UserRole.unknown) {
+    
+    if (userProfile != null) { 
       drawerItems.add(
         _buildDrawerListItem(
           icon: Icons.logout_outlined,
           text: 'Logout',
           onTap: () {
-            Navigator.pop(context);
-            // TODO: Implement actual logout logic
-            print("Logout Tapped");
-            Navigator.pushNamedAndRemoveUntil(
-                context, '/login', (route) => false);
+            AuthService().logoutUser(); 
+            Navigator.pop(context); 
+            Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false); 
           },
         ),
       );
-    } else {
+    } else { 
       drawerItems.add(
         _buildDrawerListItem(
           icon: Icons.login_outlined,
           text: 'Login',
           onTap: () {
-            Navigator.pop(context);
-            Navigator.pushNamedAndRemoveUntil(
-                context, '/login', (Route<dynamic> route) => false);
+            Navigator.pop(context); 
+            Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false); 
           },
         ),
       );
@@ -346,7 +268,7 @@ class AppDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          _buildDrawerHeader(context),
+          _buildDrawerHeader(context, userProfile, currentUserRole),
           ...drawerItems,
         ],
       ),

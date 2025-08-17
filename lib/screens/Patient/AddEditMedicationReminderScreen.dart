@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart'; // For generating unique IDs. Add `uuid: ^4.3.3` to pubspec.yaml
+import 'package:uuid/uuid.dart';
 import '../../models/MedicationRemainder.dart';
 
 class AddEditMedicationReminderScreen extends StatefulWidget {
-  final MedicationReminder? initialReminder; // Pass this if editing
+  final MedicationReminder? initialReminder;
 
   const AddEditMedicationReminderScreen({super.key, this.initialReminder});
 
@@ -18,7 +18,7 @@ class _AddEditMedicationReminderScreenState
   late String _medicationName;
   late String _dosage;
   late TimeOfDay _selectedTime;
-  final Set<DayOfWeek> _selectedDays = {}; // Use Set for easy add/remove
+  final Set<DayOfWeek> _selectedDays = {};
   late bool _isEnabled;
   String? _notes;
 
@@ -37,8 +37,7 @@ class _AddEditMedicationReminderScreenState
       _dosage = '';
       _selectedTime = TimeOfDay.now();
       _selectedDays.add(DayOfWeek.values[DateTime
-          .now()
-          .weekday - 1]); // Default to today
+          .now().weekday - 1]);
       _isEnabled = true;
       _notes = null;
     }
@@ -68,18 +67,15 @@ class _AddEditMedicationReminderScreenState
 
       final reminder = MedicationReminder(
         id: widget.initialReminder?.id ?? const Uuid().v4(),
-        // Keep ID if editing, else generate
         medicationName: _medicationName,
         dosage: _dosage,
         time: _selectedTime,
         days: _selectedDays.toList()
           ..sort((a, b) => a.index.compareTo(b.index)),
-        // Store sorted
         isEnabled: _isEnabled,
         notes: _notes,
       );
-      Navigator.of(context).pop(
-          reminder); // Return the created/updated reminder
+      Navigator.of(context).pop(reminder);
     }
   }
 
@@ -242,8 +238,6 @@ class _AddEditMedicationReminderScreenState
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 30, vertical: 15),
-                    // backgroundColor: Theme.of(context).colorScheme.primary,
-                    // foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   ),
                   onPressed: _onSave,
                 ),

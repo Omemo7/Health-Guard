@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/user_models/Doctor.dart'; // Adjust path if needed
+import '../../models/user_models/Doctor.dart';
 
 class DoctorDetailsScreen extends StatelessWidget {
   final Doctor doctor;
@@ -86,7 +86,7 @@ class DoctorDetailsScreen extends StatelessWidget {
               context,
               label: "Gender",
               value: doctor.gender,
-              icon: Icons.person, // Or use specific gender icons
+              icon: Icons.person,
             ),
             _buildDetailRow(
               context,
@@ -106,16 +106,13 @@ class DoctorDetailsScreen extends StatelessWidget {
                   ? Colors.green.shade700
                   : Colors.orange.shade800,
             ),
-            // Add more fields as needed:
-            // _buildDetailRow(context, label: "Phone", value: doctor.phone ?? "N/A", icon: Icons.phone_outlined),
-            // _buildDetailRow(context, label: "Clinic Address", value: doctor.clinicAddress ?? "N/A", icon: Icons.location_on_outlined),
           ],
         ),
       ),
     );
   }
 
-  /// Reusable Row for Each Detail
+
   Widget _buildDetailRow(
       BuildContext context, {
         required String label,

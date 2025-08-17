@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../models/user_models/DoctorSearchResultInfo.dart';
 
-// Dummy model for a doctor's report
 class DoctorReport {
   final String reportId;
   final String title;
   final DateTime date;
   final String summary;
-  final String? downloadUrl; // Optional
+  final String? downloadUrl;
 
   DoctorReport({
     required this.reportId,
@@ -41,19 +40,15 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
 
   Future<void> _fetchDoctorReports() async {
     if (mounted) setState(() => _isLoadingReports = true);
-    // Simulate API call to fetch reports for this doctor
     await Future.delayed(const Duration(seconds: 1));
 
-    // Dummy reports data
-    // In a real app, you would fetch reports related to the current patient
-    // AND this specific doctor widget.doctorInfo.doctorId
     _doctorReports = [
       DoctorReport(
         reportId: 'REP001',
         title: 'Annual Check-up Summary',
         date: DateTime.now().subtract(const Duration(days: 30)),
         summary: 'Patient is in good health. Minor cholesterol elevation, advised dietary changes.',
-        downloadUrl: 'https://example.com/report1.pdf', // Dummy URL
+        downloadUrl: 'https://example.com/report1.pdf',
       ),
       DoctorReport(
         reportId: 'REP002',
@@ -94,7 +89,6 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // Doctor Info Section
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -127,7 +121,6 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                           const SizedBox(height: 4),
                           Text(
                             "Doctor ID: ${widget.doctorInfo.doctorId}",
-                            // You might want to display specialty or other info here
                             style: textTheme.bodyMedium?.copyWith(
                                 color: Colors.grey[700]),
                           ),
@@ -152,7 +145,6 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Doctor Reports Section
             Text(
               "Doctor Reports",
               style: textTheme.titleLarge?.copyWith(
@@ -200,7 +192,6 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                       icon: Icon(Icons.download_for_offline_outlined,
                           color: colorScheme.secondary),
                       onPressed: () {
-                        // TODO: Implement report download functionality
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(
                               'Download started for ${report.title}')),
@@ -209,7 +200,6 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                     )
                         : null,
                     onTap: () {
-                      // TODO: Implement navigation to a full report view screen if needed
                       showDialog(
                           context: context,
                           builder: (_) =>

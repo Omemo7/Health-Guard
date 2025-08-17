@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 
-@immutable
 class DoctorSearchResultInfo {
   final String doctorId;
   final String name;
