@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:health_guard_flutter/models/user_roles.dart';
 import 'dart:math'; // For dummy data
 import '../../models/user_models/PatientBasicInfo.dart';
-import '../../widgets/app_drawer.dart'; // For the drawer
+import '../../widgets/AppDrawer.dart'; // For the drawer
 
 import 'PatientDetailScreen.dart'; // The detail screen we just created
 
@@ -58,9 +58,13 @@ class _DoctorScreenState extends State<DoctorScreen> {
     _doctorPatients = List.generate(15, (index) {
       final name = '${firstNames[random.nextInt(
           firstNames.length)]} ${lastNames[random.nextInt(lastNames.length)]}';
+      final age = random.nextInt(60) + 18; // Age between 18 and 77
+      final gender = random.nextBool() ? "Male" : "Female";
       return PatientBasicInfo(
         id: 'PID${1000 + index}',
         name: name,
+        age: age,
+        gender: gender,
         profileImageUrl: random.nextBool()
             ? 'https://i.pravatar.cc/150?u=$name'
             : null, // Random avatar
@@ -98,9 +102,9 @@ class _DoctorScreenState extends State<DoctorScreen> {
         .of(context)
         .textTheme;
 
-    final String _adminName = "Super Admin";
-    final String _adminEmail = "admin@healthguard.com";
-    final String? _adminProfilePic = null;
+    final String _name = "Doctor";
+    final String _email = "doctor@healthguard.com";
+    final String? _profilePic = null;
 
     return Scaffold(
       appBar: AppBar(
@@ -146,9 +150,9 @@ class _DoctorScreenState extends State<DoctorScreen> {
       ),
       drawer: AppDrawer(
         currentUserRole: UserRole.doctor, // <-- Set the role to admin
-        userName: _adminName,
-        userEmail: _adminEmail,
-        userProfileImageUrl: _adminProfilePic,
+        userName: _name,
+        userEmail: _email,
+        userProfileImageUrl: _profilePic,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

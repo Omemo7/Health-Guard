@@ -144,6 +144,12 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                     const SizedBox(height: 4),
                     Text("Patient ID: ${widget.patientInfo.id}",
                         style: textTheme.bodySmall),
+                    const SizedBox(height: 4),
+                    Text("Age: ${widget.patientInfo.age}", // Added age display
+                        style: textTheme.bodySmall),
+                    const SizedBox(height: 4),
+                    Text("Gender: ${widget.patientInfo.gender}", // Added gender display
+                        style: textTheme.bodySmall),
                   ],
                 ),
               ),

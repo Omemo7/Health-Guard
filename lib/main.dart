@@ -5,7 +5,7 @@ import 'dart:async'; // Required for Timer
 
 import 'screens/LoginScreen.dart'; // Import your LoginScreen
 // Import your MedicationReminderScreen if you intend to navigate there after login
-// import 'screens/medication_reminder_screen.dart';
+// import 'screens/MedicationReminderScreen.dart';
 
 void main() {
   // Optional: Ensure Flutter bindings are initialized if you do complex stuff before runApp

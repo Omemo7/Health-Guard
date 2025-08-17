@@ -203,7 +203,6 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
   }
 
   Future<void> _sendLinkRequest(DoctorSearchResultInfo doctorToLink) async {
-    // ... (existing _sendLinkRequest logic)
     // On success:
     if (mounted) {
       setState(() {
@@ -218,33 +217,34 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
         _updateDoctorLinkStatus(doctorToLink.doctorId); // Update all lists
 
         _isLoading = false;
-        _statusMessage =
-        "Link request sent to ${doctorToLink.name}. Waiting for approval.";
+        _statusMessage = "Successfully linked with ${doctorToLink.name}."; // Changed message
         _searchController.clear();
-        _searchQuery =
-        ""; // Clear search query to show suggestions or linked doctor card
+        _searchQuery = ""; // Clear search query to show suggestions or linked doctor card
         _searchResults = [];
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Link request sent to ${doctorToLink.name}.'),
+          content: Text('Successfully linked with ${doctorToLink.name}.'), // Changed message
           backgroundColor: Colors.green,
         ),
       );
-      // OPTIONALLY: Navigate immediately to PatientDoctorDetailScreen,
-      // or wait for actual approval if your backend works that way.
-      // For this example, let's assume successful link means we can view their (potentially pending) profile.
+      // Navigate to the doctor detail screen after successful linking
       _navigateToDoctorDetail(DoctorSearchResultInfo( // Manual "copyWith"
           doctorId: doctorToLink.doctorId,
           name: doctorToLink.name,
           profileImageUrl: doctorToLink.profileImageUrl,
           isCurrentlyLinkedToThisDoctor: true,));
     } else if (mounted) { // On failure
-      // ... (rest of the method)
       setState(() {
         _isLoading = false;
-        _statusMessage = "Could not send request. Please try again.";
+        _statusMessage = "Could not link with ${doctorToLink.name}. Please try again.";
       });
+       ScaffoldMessenger.of(context).showSnackBar( // Added SnackBar for failure
+        SnackBar(
+          content: Text('Could not link with ${doctorToLink.name}. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -320,18 +320,18 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
       content =
       'You are currently linked with ${_currentlyLinkedDoctorDetails?.name ??
           "another doctor"}.\n\nIf you link with ${doctor
-          .name}, your link with the previous doctor will be replaced upon approval.\n\nSend request to ${doctor
-          .name}?';
-      confirmButtonText = 'Switch & Request';
+          .name}, your link with the previous doctor will be replaced.\n\nLink with ${doctor
+          .name}?'; // Updated content
+      confirmButtonText = 'Switch & Link'; // Updated button text
       onConfirm = () {
         Navigator.of(context).pop();
         _sendLinkRequest(doctor);
       };
     } else {
       title = 'Link with ${doctor.name}?';
-      content = 'If ${doctor
-          .name} approves your request, they will be able to view your health data.\n\nDo you want to send a link request?';
-      confirmButtonText = 'Send Request';
+      content = 'If you link with ${doctor
+          .name}, they will be able to view your health data.\n\nDo you want to link with this doctor?'; // Updated content
+      confirmButtonText = 'Link'; // Updated button text
       onConfirm = () {
         Navigator.of(context).pop();
         _sendLinkRequest(doctor);
@@ -574,32 +574,27 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
   }
 
   Widget _buildDoctorListItem(DoctorSearchResultInfo doctor) {
-    // Determine the action for the button based on link status
     String buttonText;
     VoidCallback onPressedAction;
     Color buttonColor;
-    bool isLinkedToThisDoc = doctor.doctorId ==
-        _patientLinkedDoctorId; // Use current _patientLinkedDoctorId
+    Color foregroundColor; // For text and icon color of the button
+
+    bool isLinkedToThisDoc = doctor.doctorId == _patientLinkedDoctorId;
 
     if (isLinkedToThisDoc) {
       buttonText = 'View Details';
-      onPressedAction = () =>
-          _navigateToDoctorDetail(DoctorSearchResultInfo( // Manual "copyWith"
-              doctorId: doctor.doctorId,
-              name: doctor.name,
-              profileImageUrl: doctor.profileImageUrl,
-              isCurrentlyLinkedToThisDoctor: true,));
-      buttonColor = Theme
-          .of(context)
-          .colorScheme
-          .primary;
+      onPressedAction = () => _navigateToDoctorDetail(DoctorSearchResultInfo( 
+          doctorId: doctor.doctorId,
+          name: doctor.name,
+          profileImageUrl: doctor.profileImageUrl,
+          isCurrentlyLinkedToThisDoctor: true,));
+      buttonColor = Theme.of(context).colorScheme.primary;
+      foregroundColor = Theme.of(context).colorScheme.onPrimary;
     } else {
       buttonText = 'Link';
       onPressedAction = () => _showLinkConfirmationDialog(doctor);
-      buttonColor = Theme
-          .of(context)
-          .colorScheme
-          .secondary;
+      buttonColor = Theme.of(context).colorScheme.secondary;
+      foregroundColor = Theme.of(context).colorScheme.onSecondary;
     }
 
     return Card(
@@ -614,14 +609,15 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
         title: Text(doctor.name),
         trailing: ElevatedButton(
           onPressed: onPressedAction,
-          style: ElevatedButton.styleFrom(backgroundColor: buttonColor),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: buttonColor,
+            foregroundColor: foregroundColor, // Ensure text color contrasts
+          ),
           child: Text(buttonText),
         ),
         onTap: () {
-          // If already linked, tapping the list tile also navigates to details.
-          // Otherwise, it can also initiate the link confirmation.
           if (isLinkedToThisDoc) {
-            _navigateToDoctorDetail(DoctorSearchResultInfo( // Manual "copyWith"
+            _navigateToDoctorDetail(DoctorSearchResultInfo( 
                 doctorId: doctor.doctorId,
                 name: doctor.name,
                 profileImageUrl: doctor.profileImageUrl,
@@ -697,7 +693,7 @@ class _LinkDoctorScreenState extends State<LinkDoctorScreen> {
                 Expanded(
                   child: Center(
                     child: Text(_statusMessage ??
-                        "No doctors found matching '$_searchQuery'."),
+                        "No doctors found matching '$_searchQuery'. painstaking"),
                   ),
                 )
               else

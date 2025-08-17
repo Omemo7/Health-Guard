@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 // Correctly import your models (this provides VitalLogEntry, VitalType, vitalTypeToString, getVitalUnit, _dummyVitalLogEntries)
 
 import '../../models/health_models/VitalLogEntry.dart';
-import 'add_edit_vital_log_screen.dart'; // To navigate for adding/editing
+import 'AddEditVitalLogScreen.dart'; // To navigate for adding/editing
 import 'package:uuid/uuid.dart';
 
 // Dummy data (ensure Uuid is available via import)

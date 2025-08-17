@@ -11,8 +11,8 @@ import '../../widgets/charts/vital_chart_widget.dart';
 
 class RelatedPatientDetailScreen extends StatefulWidget {
   final PatientBasicInfo memberInfo; // The family member whose data is being viewed
-
-  const RelatedPatientDetailScreen({super.key, required this.memberInfo});
+  final String relationship;
+  const RelatedPatientDetailScreen({super.key, required this.memberInfo, required this.relationship});
 
   @override
   State<RelatedPatientDetailScreen> createState() =>
@@ -142,7 +142,7 @@ class _RelatedPatientDetailScreenState extends State<RelatedPatientDetailScreen>
                         style: textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold)),
                     const SizedBox(height: 2),
-                    Text("Relationship: ${widget.memberInfo.relationship}",
+                    Text("Relationship: ${widget.relationship}",
                         style: textTheme.bodyMedium),
                     const SizedBox(height: 4),
                     Text("Member ID: ${widget.memberInfo.id}",

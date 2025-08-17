@@ -7,6 +7,8 @@ class PatientBasicInfo {
   final String name;
   final String? profileImageUrl;
   final String lastActivity;
+  final int age; // Added age
+  final String gender; // Added gender
 
   final String relationship;
 
@@ -15,8 +17,9 @@ class PatientBasicInfo {
     required this.name,
     this.profileImageUrl,
     required this.lastActivity,
+    required this.age, // Added age
+    required this.gender, // Added gender
 
     this.relationship = "Patient",
   });
 }
-

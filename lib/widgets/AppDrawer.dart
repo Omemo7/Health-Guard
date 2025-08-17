@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:health_guard_flutter/screens/Family%20member/RelatedPatientDetailScreen.dart';
 import 'package:health_guard_flutter/screens/Patient/ManageFamilyMembersScreen.dart';
-import 'package:health_guard_flutter/screens/Patient/medication_reminder_screen.dart';
+import 'package:health_guard_flutter/screens/Patient/MedicationReminderScreen.dart';
 import 'package:health_guard_flutter/screens/Patient/LinkDoctorScreen.dart'; // Added import for LinkDoctorScreen
-
+import 'package:health_guard_flutter/screens/profile/ProfileScreen.dart';
 import '../models/user_roles.dart';
 import '../screens/Patient/ManageVitalsScreen.dart'; // Import your UserRole enum
-
+// import 'package:health_guard_flutter/screens/profile/ProfileScreen.dart'; // Duplicate import removed
 
 class PlaceholderScreen extends StatelessWidget {
   final String title;
@@ -175,9 +175,75 @@ class AppDrawer extends StatelessWidget {
           text: 'My Profile',
           // isSelected: ModalRoute.of(context)?.settings.name == '/profile',
           onTap: () {
-            Navigator.pop(context);
-            // Navigate to ProfileScreen. Assuming it can handle a null userProfile or fetch its own.
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceholderScreen(title: "sd")));
+            Navigator.pop(context); // Close the drawer
+
+            // --- Temporary Mock Profile Data ---
+            // You MUST replace this with your actual user profile data logic
+            BaseProfile mockProfile;
+            switch (currentUserRole) {
+              case UserRole.patient:
+                mockProfile = PatientProfile(
+                  id: "patient123",
+                  name: userName ?? "Patient User",
+                  email: userEmail ?? "patient@example.com",
+                  profileImageUrl: userProfileImageUrl,
+                  // Add other patient-specific fields if needed for initial display
+                );
+                break;
+              case UserRole.doctor:
+                mockProfile = DoctorProfile(
+                  id: "doctor456",
+                  name: userName ?? "Doctor User",
+                  email: userEmail ?? "doctor@example.com",
+                  profileImageUrl: userProfileImageUrl,
+                  // Add other doctor-specific fields
+                );
+                break;
+              case UserRole.familyMember:
+                mockProfile = FamilyMemberProfile(
+                  id: "family789",
+                  name: userName ?? "Family Member",
+                  email: userEmail ?? "family@example.com",
+                  profileImageUrl: userProfileImageUrl,
+                  linkedPatientId: "unknown_patient", // This can remain as a placeholder
+                  relationshipToPatient: null,      // Ensure this is null or ""
+                );
+                break;
+
+              case UserRole.admin: // This case should already exist
+                mockProfile = AdminProfile( // Ensure this is AdminProfile
+                  id: "admin001",
+                  name:  "koko",
+                  username: userName ??"Admin User",
+                  email: userEmail ?? "admin@example.com",
+                  profileImageUrl: null,
+
+                );
+                break;
+            // ...
+              default: // Includes UserRole.admin and UserRole.unknown
+              // For Admin or Unknown, maybe navigate to a different profile screen
+              // or show a generic one. For now, let's use a basic BaseProfile.
+                mockProfile = BaseProfile(
+                    id: "user000",
+                    name: userName ?? "User",
+                    email: userEmail ?? "user@example.com",
+                    profileImageUrl: userProfileImageUrl,
+                    userType: UserType
+                        .patient // Or a generic type if you add one
+                );
+            // Alternatively, for Admin/Unknown, you might not want to show this profile screen
+            // or show a different message/screen.
+            // For this example, we'll proceed but ideally, Admins might have a different profile view.
+            }
+            // --- End of Temporary Mock Profile Data ---
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ProfileScreen(userProfile: mockProfile),
+              ),
+            );
           },
         ),
       ]);
@@ -235,106 +301,18 @@ class AppDrawer extends StatelessWidget {
       // ... (Doctor items as before)
         break;
       case UserRole.familyMember:
-      // ... (Family Member items as before)
-        drawerItems.addAll([
-          _buildDrawerListItem(
-            icon: Icons.monitor_heart_outlined,
-            text: "Patient's Vitals",
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (_) =>
-                  const PlaceholderScreen(
-                      title: "Patient's Vitals")));
-            },
-          ),
-          _buildDrawerListItem(
-            icon: Icons.notifications_active_outlined,
-            text: 'Notifications Setup',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (_) =>
-                  const PlaceholderScreen(
-                      title: "Notifications Setup")));
-            },
-          ),
-        ]);
+
         break;
       case UserRole.admin: // <-- Added Admin case for specific items
-        drawerItems.addAll([
-          _buildDrawerListItem(
-            icon: Icons.manage_accounts_outlined,
-            text: 'User Management',
-            onTap: () {
-              Navigator.pop(context);
-              // TODO: Navigate to Admin User Management Screen
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (_) =>
-                  const PlaceholderScreen(
-                      title: "User Management")));
-              // Example: Navigator.pushNamed(context, '/admin_user_management');
-            },
-          ),
-          _buildDrawerListItem(
-            icon: Icons.display_settings_outlined,
-            text: 'System Settings',
-            onTap: () {
-              Navigator.pop(context);
-              // TODO: Navigate to Admin System Settings Screen
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (_) =>
-                  const PlaceholderScreen(
-                      title: "System Settings")));
-              // Example: Navigator.pushNamed(context, '/admin_system_settings');
-            },
-          ),
-          _buildDrawerListItem(
-            icon: Icons.analytics_outlined,
-            text: 'View System Analytics',
-            onTap: () {
-              Navigator.pop(context);
-              // TODO: Navigate to Admin Analytics Screen
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (_) =>
-                  const PlaceholderScreen(
-                      title: "System Analytics")));
-              // Example: Navigator.pushNamed(context, '/admin_analytics');
-            },
-          ),
-          _buildDrawerListItem(
-            icon: Icons.flag_outlined,
-            text: 'Content Moderation',
-            onTap: () {
-              Navigator.pop(context);
-              // TODO: Navigate to Admin Content Moderation Screen
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (_) =>
-                  const PlaceholderScreen(
-                      title: "Content Moderation")));
-              // Example: Navigator.pushNamed(context, '/admin_moderation');
-            },
-          ),
-        ]);
+
         break;
       case UserRole.unknown:
         break;
     }
 
-    // --- Common bottom items (About, Logout/Login) ---
-    // ... (This section remains largely the same)
+
     drawerItems.add(const Divider());
-    drawerItems.add(
-      _buildDrawerListItem(
-        icon: Icons.info_outline,
-        text: 'About App',
-        onTap: () {
-          Navigator.pop(context);
-          Navigator.push(context, MaterialPageRoute(
-              builder: (_) => const PlaceholderScreen(title: "About App")));
-        },
-      ),
-    );
+
 
     if (currentUserRole != UserRole.unknown) {
       drawerItems.add(

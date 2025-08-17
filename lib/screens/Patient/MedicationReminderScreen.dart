@@ -1,85 +1,167 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart'; // For generating unique IDs. Add `uuid: ^4.3.3` to pubspec.yaml
+import 'package:uuid/uuid.dart'; // For dummy data ID generation
 import '../../models/MedicationRemainder.dart';
+import 'AddEditMedicationReminderScreen.dart'; // The form screen
+
+// Global store for reminders for this session
+List<MedicationReminder> _globalReminders = [];
+bool _globalRemindersInitialized = false;
 
 class MedicationReminderScreen extends StatefulWidget {
-  final MedicationReminder? initialReminder; // Pass this if editing
-
-  const MedicationReminderScreen({super.key, this.initialReminder});
+  const MedicationReminderScreen({super.key, MedicationReminder? initialReminder});
 
   @override
   State<MedicationReminderScreen> createState() =>
       _MedicationReminderScreenState();
 }
 
-class _MedicationReminderScreenState
-    extends State<MedicationReminderScreen> {
-  final _formKey = GlobalKey<FormState>();
-  late String _medicationName;
-  late String _dosage;
-  late TimeOfDay _selectedTime;
-  final Set<DayOfWeek> _selectedDays = {}; // Use Set for easy add/remove
-  late bool _isEnabled;
-  String? _notes;
+class _MedicationReminderScreenState extends State<MedicationReminderScreen> {
+  bool _isLoading = true; // Simulate initial loading
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialReminder != null) {
-      _medicationName = widget.initialReminder!.medicationName;
-      _dosage = widget.initialReminder!.dosage;
-      _selectedTime = widget.initialReminder!.time;
-      _selectedDays.addAll(widget.initialReminder!.days);
-      _isEnabled = widget.initialReminder!.isEnabled;
-      _notes = widget.initialReminder!.notes;
+    _loadReminders();
+  }
+
+  Future<void> _loadReminders() async {
+    setState(() => _isLoading = true);
+    // Simulate loading
+    await Future.delayed(const Duration(milliseconds: 700));
+
+    if (!_globalRemindersInitialized && mounted) {
+      _globalReminders = [
+        MedicationReminder(id: const Uuid().v4(),
+            medicationName: "Metformin",
+            dosage: "500mg tablet",
+            time: const TimeOfDay(hour: 8, minute: 0),
+            days: [
+              DayOfWeek.monday,
+              DayOfWeek.tuesday,
+              DayOfWeek.wednesday,
+              DayOfWeek.thursday,
+              DayOfWeek.friday,
+              DayOfWeek.saturday,
+              DayOfWeek.sunday
+            ],
+            notes: "Take with breakfast"),
+        MedicationReminder(id: const Uuid().v4(),
+            medicationName: "Lisinopril",
+            dosage: "10mg tablet",
+            time: const TimeOfDay(hour: 9, minute: 30),
+            days: [DayOfWeek.monday, DayOfWeek.wednesday, DayOfWeek.friday],
+            isEnabled: true),
+        MedicationReminder(id: const Uuid().v4(),
+            medicationName: "Amoxicillin",
+            dosage: "250mg capsule",
+            time: const TimeOfDay(hour: 20, minute: 0),
+            days: [DayOfWeek.tuesday, DayOfWeek.thursday],
+            isEnabled: false,
+            notes: "Finish the course"),
+      ];
+      _globalRemindersInitialized = true;
+    }
+    _sortGlobalReminders();
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _sortGlobalReminders() {
+    _globalReminders.sort((a, b) {
+      final timeA = a.time.hour * 60 + a.time.minute;
+      final timeB = b.time.hour * 60 + b.time.minute;
+      return timeA.compareTo(timeB);
+    });
+  }
+
+  void _addOrUpdateReminder(MedicationReminder reminder) {
+    // --- TODO: Persist change to backend/local storage ---
+    final index = _globalReminders.indexWhere((r) => r.id == reminder.id);
+    if (index != -1) {
+      _globalReminders[index] = reminder; // Update
     } else {
-      _medicationName = '';
-      _dosage = '';
-      _selectedTime = TimeOfDay.now();
-      _selectedDays.add(DayOfWeek.values[DateTime
-          .now()
-          .weekday - 1]); // Default to today
-      _isEnabled = true;
-      _notes = null;
+      _globalReminders.add(reminder); // Add
     }
+    _sortGlobalReminders();
+    // setState will be called by _navigateToForm
+    // --- TODO: Schedule/update actual device notification ---
   }
 
-  Future<void> _pickTime() async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime,
-    );
-    if (picked != null && picked != _selectedTime) {
-      setState(() {
-        _selectedTime = picked;
-      });
+  void _deleteReminder(String reminderId) {
+    // --- TODO: Persist change to backend/local storage ---
+    MedicationReminder? deletedReminder;
+    int? deletedReminderIndex;
+    final index = _globalReminders.indexWhere((r) => r.id == reminderId);
+
+    if (index != -1) {
+      deletedReminder = _globalReminders[index];
+      deletedReminderIndex = index;
+      _globalReminders.removeAt(index);
+      // setState(() {}); // UI updated by _showDeleteConfirmation's setState or SnackBar flow
     }
-  }
 
-  void _onSave() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      if (_selectedDays.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select at least one day.')),
-        );
-        return;
-      }
-
-      final reminder = MedicationReminder(
-        id: widget.initialReminder?.id ?? const Uuid().v4(),
-        // Keep ID if editing, else generate
-        medicationName: _medicationName,
-        dosage: _dosage,
-        time: _selectedTime,
-        days: _selectedDays.toList()
-          ..sort((a, b) => a.index.compareTo(b.index)),
-        // Store sorted
-        isEnabled: _isEnabled,
-        notes: _notes,
+    // --- TODO: Cancel actual device notification ---
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Reminder deleted.'),
+          action: SnackBarAction(
+            label: "Undo",
+            onPressed: () async {
+              if (deletedReminder != null && deletedReminderIndex != null) {
+                _globalReminders.insert(deletedReminderIndex, deletedReminder!);
+                _sortGlobalReminders();
+                // --- TODO: Re-schedule notification ---
+                if (mounted) {
+                  setState(() {}); // Update UI with the restored item
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Deletion undone.'))
+                  );
+                }
+              } else {
+                // Fallback to reloading if not using temporary undo (though less likely with this setup)
+                await _loadReminders();
+              }
+            },
+          ),
+        ),
       );
-      Navigator.of(context).pop(
-          reminder); // Return the created/updated reminder
+    }
+     // The setState in _showDeleteConfirmation will handle the initial UI update
+     // or if _showDeleteConfirmation is not used, a setState after this call would be needed.
+     // For now, _showDeleteConfirmation handles it.
+  }
+
+
+  void _toggleReminderStatus(MedicationReminder reminder, bool isEnabled) {
+    // --- TODO: Persist change to backend/local storage ---
+    final index = _globalReminders.indexWhere((r) => r.id == reminder.id);
+    if (index != -1) {
+      _globalReminders[index] = reminder.copyWith(isEnabled: isEnabled);
+      // setState is called by the Switch's onChanged callback in _buildReminderCard
+      // --- TODO: Schedule/cancel actual device notification based on new status ---
+      if (mounted) { // Ensure widget is still in tree before showing SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Reminder ${isEnabled ? "enabled" : "disabled"}'))
+        );
+      }
+    }
+  }
+
+  void _navigateToForm({MedicationReminder? reminder}) async {
+    final result = await Navigator.push<MedicationReminder>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddEditMedicationReminderScreen(initialReminder: reminder),
+      ),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _addOrUpdateReminder(result);
+      });
     }
   }
 
@@ -87,171 +169,245 @@ class _MedicationReminderScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            widget.initialReminder == null ? 'Add Reminder' : 'Edit Reminder'),
+        title: const Text('Medication Reminders'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.save_alt_outlined),
-            onPressed: _onSave,
-            tooltip: "Save Reminder",
-          ),
+            icon: const Icon(Icons.refresh_outlined),
+            onPressed: () async { // Make onPressed async if _loadReminders is async
+              _globalRemindersInitialized = false; // Force re-fetch of dummy data for refresh
+              await _loadReminders();
+            },
+            tooltip: "Refresh Reminders",
+          )
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              TextFormField(
-                initialValue: _medicationName,
-                decoration: const InputDecoration(labelText: 'Medication Name',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.medication_outlined)),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter medication name';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _medicationName = value!,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                initialValue: _dosage,
-                decoration: const InputDecoration(
-                    labelText: 'Dosage (e.g., 1 tablet, 10mg)',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.scale_outlined)),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter dosage';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _dosage = value!,
-              ),
-              const SizedBox(height: 20),
-              Text('Reminder Time', style: Theme
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _globalReminders.isEmpty
+          ? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+                Icons.medication_liquid_outlined, size: 80, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(
+              'No medication reminders set yet.',
+              style: Theme
                   .of(context)
                   .textTheme
-                  .titleMedium),
-              const SizedBox(height: 8),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.alarm_outlined, size: 30),
-                title: Text(_selectedTime.format(context), style: Theme
-                    .of(context)
-                    .textTheme
-                    .headlineSmall),
-                trailing: const Icon(Icons.arrow_drop_down_circle_outlined),
-                onTap: _pickTime,
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Theme
-                      .of(context)
-                      .dividerColor),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                tileColor: Theme
-                    .of(context)
-                    .colorScheme
-                    .surfaceVariant
-                    .withOpacity(0.3),
-              ),
-              const SizedBox(height: 20),
-              Text('Repeat On', style: Theme
+                  .titleLarge,
+            ),
+            const SizedBox(height: 8),
+            const Text('Tap the "+" button to add your first reminder.'),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.add_alarm_outlined),
+              label: const Text('Add First Reminder'),
+              onPressed: () => _navigateToForm(),
+            ),
+          ],
+        ),
+      )
+          : ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+        itemCount: _globalReminders.length,
+        itemBuilder: (context, index) {
+          final reminder = _globalReminders[index];
+          return _buildReminderCard(reminder);
+        },
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _navigateToForm(),
+        label: const Text('Add Reminder'),
+        icon: const Icon(Icons.add_alarm_outlined),
+      ),
+    );
+  }
+
+  Widget _buildReminderCard(MedicationReminder reminder) {
+    final cardColor = reminder.isEnabled
+        ? Theme
+        .of(context)
+        .colorScheme
+        .surfaceVariant
+        : Theme
+        .of(context)
+        .colorScheme
+        .surfaceVariant
+        .withAlpha(100);
+    final onCardColor = reminder.isEnabled
+        ? Theme
+        .of(context)
+        .colorScheme
+        .onSurfaceVariant
+        : Theme
+        .of(context)
+        .colorScheme
+        .onSurfaceVariant
+        .withAlpha(150);
+
+
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 6.0),
+      color: cardColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+      child: Padding(
+        padding: const EdgeInsets.only(
+            top: 8.0, bottom: 8.0, left: 16.0, right: 8.0),
+        child: Row(
+          children: [
+            Icon(
+              reminder.isEnabled ? Icons.alarm_on_outlined : Icons
+                  .alarm_off_outlined,
+              size: 36,
+              color: reminder.isEnabled ? Theme
                   .of(context)
-                  .textTheme
-                  .titleMedium),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8.0,
-                runSpacing: 4.0,
-                children: DayOfWeek.values.map((day) {
-                  final isSelected = _selectedDays.contains(day);
-                  return FilterChip(
-                    label: Text(dayOfWeekToString(day).substring(0, 3)),
-                    selected: isSelected,
-                    onSelected: (bool selected) {
-                      setState(() {
-                        if (selected) {
-                          _selectedDays.add(day);
-                        } else {
-                          _selectedDays.remove(day);
-                        }
-                      });
-                    },
-                    selectedColor: Theme
-                        .of(context)
-                        .colorScheme
-                        .primaryContainer,
-                    checkmarkColor: Theme
-                        .of(context)
-                        .colorScheme
-                        .onPrimaryContainer,
-                  );
-                }).toList(),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  .colorScheme
+                  .primary : Colors.grey,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextButton(onPressed: () {
-                    setState(() {
-                      _selectedDays.clear();
-                      _selectedDays.addAll(DayOfWeek.values);
-                    });
-                  }, child: const Text("Select All")),
-                  TextButton(onPressed: () {
-                    setState(() {
-                      _selectedDays.clear();
-                    });
-                  }, child: const Text("Clear All"))
+                  Text(
+                    reminder.medicationName,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(
+                        fontWeight: FontWeight.bold, color: onCardColor),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    reminder.dosage,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: onCardColor),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(Icons.access_time_filled_rounded, size: 16,
+                          color: onCardColor.withOpacity(0.8)),
+                      const SizedBox(width: 4),
+                      Text(
+                        reminder.timeFormatted(context),
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(color: onCardColor),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Days: ${reminder.daysFormatted}",
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: onCardColor),
+                  ),
+                  if (reminder.notes != null && reminder.notes!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      "Notes: ${reminder.notes}",
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(
+                          fontStyle: FontStyle.italic, color: onCardColor),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ],
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                initialValue: _notes,
-                decoration: const InputDecoration(labelText: 'Notes (Optional)',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.notes_outlined)),
-                maxLines: 2,
-                onSaved: (value) => _notes = value,
-              ),
-              const SizedBox(height: 16),
-              SwitchListTile(
-                title: const Text('Enable Reminder'),
-                value: _isEnabled,
-                onChanged: (bool value) {
-                  setState(() {
-                    _isEnabled = value;
-                  });
-                },
-                secondary: Icon(
-                    _isEnabled ? Icons.notifications_active_outlined : Icons
-                        .notifications_off_outlined),
-              ),
-              const SizedBox(height: 30),
-              Center(
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.save_alt_outlined),
-                  label: Text(widget.initialReminder == null
-                      ? 'Add Reminder'
-                      : 'Update Reminder',
-                      style: const TextStyle(fontSize: 16)),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 15),
-                    // backgroundColor: Theme.of(context).colorScheme.primary,
-                    // foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                  onPressed: _onSave,
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Switch(
+                  value: reminder.isEnabled,
+                  onChanged: (bool value) {
+                    setState(() { // This setState will refresh the card
+                      _toggleReminderStatus(reminder, value);
+                    });
+                  },
+                  activeColor: Theme
+                      .of(context)
+                      .colorScheme
+                      .primary,
                 ),
-              ),
-            ],
-          ),
+                PopupMenuButton<String>(
+                  icon: Icon(Icons.more_vert, color: onCardColor),
+                  onSelected: (value) {
+                    if (value == 'edit') {
+                      _navigateToForm(reminder: reminder);
+                    } else if (value == 'delete') {
+                      _showDeleteConfirmation(reminder);
+                    }
+                  },
+                  itemBuilder: (BuildContext context) =>
+                  <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'edit',
+                      child: ListTile(leading: Icon(Icons.edit_outlined),
+                          title: Text('Edit')),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'delete',
+                      child: ListTile(leading: Icon(
+                          Icons.delete_outline, color: Colors.red),
+                          title: Text('Delete', style: TextStyle(color: Colors
+                              .red))),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  Future<void> _showDeleteConfirmation(MedicationReminder reminder) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Reminder?'),
+          content: Text(
+              'Are you sure you want to delete the reminder for "${reminder
+                  .medicationName}"?'), // Simplified message
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Delete'),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && mounted) {
+      setState(() { // This setState triggers UI update after _deleteReminder modifies the list
+        _deleteReminder(reminder.id);
+      });
+    }
   }
 }

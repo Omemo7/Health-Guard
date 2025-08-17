@@ -5,7 +5,7 @@ import 'dart:math';
 import '../../models/health_models/MonthlyHealthSummary.dart';
 import '../../models/health_models/VitalDataPoint.dart';
 import '../../models/health_models/VitalLogEntry.dart';
-import '../../widgets/app_drawer.dart';
+import '../../widgets/AppDrawer.dart';
 import '../../models/user_roles.dart';
 
 import '../../widgets/charts/overall_health_chart_widget.dart';

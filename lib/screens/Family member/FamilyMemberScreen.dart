@@ -2,46 +2,171 @@ import 'package:flutter/material.dart';
 import 'dart:math'; // For dummy data
 import '../../models/user_models/PatientBasicInfo.dart';
 import 'RelatedPatientDetailScreen.dart'; // The detail screen
-import '../../widgets/app_drawer.dart'; // For the drawer
-import '../../models/user_roles.dart'; // For UserRole';
+import '../../widgets/AppDrawer.dart'; // For the drawer
+import '../../models/user_roles.dart'; // For UserRole
 
-class RequestLinkFamilyMemberScreen extends StatelessWidget {
-  const RequestLinkFamilyMemberScreen({super.key});
+// 🔹 New wrapper model to hold patient info + relationship
+class LinkedFamilyMember {
+  final PatientBasicInfo patient;
+  final String relationship;
+
+  LinkedFamilyMember({
+    required this.patient,
+    required this.relationship,
+  });
+}
+
+// Renamed and refactored for searching and linking by ID
+class LinkPatientByIdScreen extends StatefulWidget {
+  final List<String> alreadyLinkedIds;
+
+  const LinkPatientByIdScreen({super.key, required this.alreadyLinkedIds});
+
+  @override
+  State<LinkPatientByIdScreen> createState() => _LinkPatientByIdScreenState();
+}
+
+class _LinkPatientByIdScreenState extends State<LinkPatientByIdScreen> {
+  final _patientIdController = TextEditingController();
+  final _relationshipController = TextEditingController();
+  String _searchMessage = '';
+
+  // Dummy list of all patients in the "system"
+  static final List<PatientBasicInfo> _allSystemPatients = [
+    PatientBasicInfo(id: "PAT001", name: "Alice Wonderland", age: 30, gender: "Female", profileImageUrl: "https://i.pravatar.cc/150?u=PAT001", lastActivity: "Online 5 mins ago"),
+    PatientBasicInfo(id: "PAT002", name: "Bob The Builder", age: 45, gender: "Male", profileImageUrl: "https://i.pravatar.cc/150?u=PAT002", lastActivity: "Active 1 hour ago"),
+    PatientBasicInfo(id: "PAT003", name: "Charlie Chaplin", age: 60, gender: "Male", profileImageUrl: null, lastActivity: "Seen yesterday"),
+    PatientBasicInfo(id: "PAT004", name: "Diana Prince", age: 28, gender: "Female", profileImageUrl: "https://i.pravatar.cc/150?u=PAT004", lastActivity: "Online now"),
+    PatientBasicInfo(id: "PAT005", name: "Edward Scissorhands", age: 35, gender: "Male", profileImageUrl: "https://i.pravatar.cc/150?u=PAT005", lastActivity: "Vitals updated 2h ago"),
+  ];
+
+  void _searchAndLinkPatient() {
+    final String enteredId = _patientIdController.text.trim();
+    final String enteredRelationship = _relationshipController.text.trim();
+
+    if (enteredId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter a Patient ID."), backgroundColor: Colors.orange),
+      );
+      return;
+    }
+
+    if (enteredRelationship.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter a relationship."), backgroundColor: Colors.orange),
+      );
+      return;
+    }
+
+    if (widget.alreadyLinkedIds.contains(enteredId)) {
+      setState(() {
+        _searchMessage = "Patient with ID '$enteredId' is already linked.";
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Patient with ID '$enteredId' is already linked."), backgroundColor: Colors.amber),
+      );
+      return;
+    }
+
+    try {
+      final PatientBasicInfo foundPatient = _allSystemPatients.firstWhere(
+            (patient) => patient.id.toLowerCase() == enteredId.toLowerCase(),
+      );
+
+      // Create linked member with relationship
+      final LinkedFamilyMember linkedMember = LinkedFamilyMember(
+        patient: foundPatient,
+        relationship: enteredRelationship,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Patient '${foundPatient.name}' linked successfully as $enteredRelationship!"), backgroundColor: Colors.green),
+      );
+
+      Navigator.pop(context, linkedMember);
+
+    } catch (e) {
+      setState(() {
+        _searchMessage = "Patient with ID '$enteredId' not found in the system.";
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Patient with ID '$enteredId' not found."), backgroundColor: Colors.redAccent),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Link New Member")),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                "To link with another family member, you'll typically send them a request. They will need to approve it from their account.",
-                textAlign: TextAlign.center,
+      appBar: AppBar(title: const Text("Link Patient by ID")),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              "Enter the ID of the patient you wish to link with and specify the relationship. The request will be simulated as accepted immediately.",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 25),
+            TextField(
+              controller: _patientIdController,
+              decoration: InputDecoration(
+                labelText: "Patient ID",
+                hintText: "e.g., PAT001",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                prefixIcon: const Icon(Icons.badge_outlined),
               ),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.person_add_alt_1_outlined),
-                label: const Text("Initiate Link Request (TODO)"),
-                onPressed: () {
-                  // TODO: Implement the actual linking request logic with backend
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text(
-                        'Linking request feature is not yet implemented.')),
-                  );
-                },
-              )
-            ],
-          ),
+              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _relationshipController,
+              decoration: InputDecoration(
+                labelText: "Relationship",
+                hintText: "e.g., Sister, Brother, Cousin",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                prefixIcon: const Icon(Icons.family_restroom),
+              ),
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _searchAndLinkPatient(),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.search_rounded),
+              label: const Text("Search & Link Patient"),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                textStyle: const TextStyle(fontSize: 16),
+              ),
+              onPressed: _searchAndLinkPatient,
+            ),
+            const SizedBox(height: 20),
+            if (_searchMessage.isNotEmpty)
+              Text(
+                _searchMessage,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: _searchMessage.contains("not found") || _searchMessage.contains("Please enter")
+                      ? Colors.redAccent
+                      : _searchMessage.contains("already linked")
+                      ? Colors.amber.shade700
+                      : Colors.green,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+          ],
         ),
       ),
     );
   }
 }
-
 
 class FamilyMemberScreen extends StatefulWidget {
   const FamilyMemberScreen({super.key});
@@ -51,7 +176,7 @@ class FamilyMemberScreen extends StatefulWidget {
 }
 
 class _FamilyMemberScreenState extends State<FamilyMemberScreen> {
-  List<PatientBasicInfo> _linkedFamilyMembers = [];
+  List<LinkedFamilyMember> _linkedFamilyMembers = [];
   bool _isLoading = true;
   String _searchQuery = '';
 
@@ -63,81 +188,93 @@ class _FamilyMemberScreenState extends State<FamilyMemberScreen> {
 
   Future<void> _fetchLinkedFamilyMembers() async {
     if (mounted) setState(() => _isLoading = true);
-
-    // --- TODO: ACTUAL API call to get the list of family members ---
-    // This will involve authentication for the logged-in family member
-    // and querying the backend for their approved connections.
     print("Fetching list of linked family members...");
-    await Future.delayed(
-        const Duration(milliseconds: 1200)); // Simulate API call
+    await Future.delayed(const Duration(milliseconds: 800)); // Simulate API call
 
-    // --- Dummy Data Generation ---
-    final Random random = Random();
-    const names = [
-      "Eleanor Vance",
-      "Marcus Chen",
-      "Sophia Miller",
-      "David Rodriguez",
-      "Olivia Kim"
-    ];
-    const relationships = ["Mother", "Brother", "Spouse", "Father", "Daughter"];
-    _linkedFamilyMembers =
-        List.generate(random.nextInt(4) + 1, (index) { // 1 to 4 members
-          final name = names[random.nextInt(names.length)];
-          return PatientBasicInfo(
-            id: 'FMID${2000 + index}',
-            name: name,
-            relationship: relationships[random.nextInt(relationships.length)],
-            profileImageUrl: random.nextBool()
-                ? 'https://i.pravatar.cc/150?u=$name'
-                : null,
-            lastActivity: "Vitals updated ${random.nextInt(3) + 1}h ago",
-          );
-        });
-    _linkedFamilyMembers.sort((a, b) => a.name.compareTo(b.name));
-    // --- End Dummy Data Generation ---
+    _linkedFamilyMembers = []; // Start empty (or load from backend later)
 
     if (mounted) setState(() => _isLoading = false);
   }
 
-  List<PatientBasicInfo> get _filteredMembers {
+  List<LinkedFamilyMember> get _filteredMembers {
     if (_searchQuery.isEmpty) {
       return _linkedFamilyMembers;
     }
     return _linkedFamilyMembers
-        .where((member) =>
-    member.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-        member.relationship.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .where((member) => member.patient.name.toLowerCase().contains(_searchQuery.toLowerCase()))
         .toList();
   }
 
-  void _navigateToMemberDetail(PatientBasicInfo member) {
+  void _navigateToMemberDetail(LinkedFamilyMember member) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => RelatedPatientDetailScreen(memberInfo: member),
+        builder: (context) => RelatedPatientDetailScreen(memberInfo: member.patient, relationship: member.relationship),
       ),
     );
   }
 
-  void _navigateToAddFamilyMemberFlow() {
-    Navigator.push(
+  Future<void> _navigateAndLinkPatient() async {
+    final List<String> currentlyLinkedIds = _linkedFamilyMembers.map((m) => m.patient.id).toList();
+    final newMember = await Navigator.push<LinkedFamilyMember>(
       context,
       MaterialPageRoute(
-        builder: (
-            context) => const RequestLinkFamilyMemberScreen(), // Placeholder screen
+        builder: (context) => LinkPatientByIdScreen(alreadyLinkedIds: currentlyLinkedIds),
       ),
     );
+
+    if (newMember != null && mounted) {
+      if (!_linkedFamilyMembers.any((member) => member.patient.id == newMember.patient.id)) {
+        setState(() {
+          _linkedFamilyMembers.add(newMember);
+          _linkedFamilyMembers.sort((a, b) => a.patient.name.compareTo(b.patient.name));
+        });
+      }
+    }
+  }
+
+  Future<void> _unlinkPatient(LinkedFamilyMember memberToUnlink) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Unlink'),
+          content: Text('Are you sure you want to unlink from ${memberToUnlink.patient.name}?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Unlink'),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && mounted) {
+      setState(() {
+        _linkedFamilyMembers.removeWhere((member) => member.patient.id == memberToUnlink.patient.id);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Successfully unlinked from ${memberToUnlink.patient.name}.'), backgroundColor: Colors.green),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme textTheme = Theme
-        .of(context)
-        .textTheme;
-    final String _adminName = "Super Admin";
-    final String _adminEmail = "admin@healthguard.com";
-    final String? _adminProfilePic = null;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final String _name = "family"; // TODO: Replace with actual logged-in family member data
+    final String _email = "family@healthguard.com";
+    final String? _profilePic = null;
 
     return Scaffold(
       appBar: AppBar(
@@ -149,26 +286,21 @@ class _FamilyMemberScreenState extends State<FamilyMemberScreen> {
             tooltip: "Refresh List",
           )
         ],
-        bottom: PreferredSize( // Search Bar
+        bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search by name or relationship...',
+                hintText: 'Search by name...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25.0),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: Theme
-                    .of(context)
-                    .colorScheme
-                    .surface,
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 0, horizontal: 20),
+                fillColor: Theme.of(context).colorScheme.surface,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
               ),
               onChanged: (value) {
                 setState(() {
@@ -180,14 +312,14 @@ class _FamilyMemberScreenState extends State<FamilyMemberScreen> {
         ),
       ),
       drawer: AppDrawer(
-        currentUserRole: UserRole.patient, // <-- Set the role to admin
-        userName: _adminName,
-        userEmail: _adminEmail,
-        userProfileImageUrl: _adminProfilePic,
+        currentUserRole: UserRole.familyMember,
+        userName: _name,
+        userEmail: _email,
+        userProfileImageUrl: _profilePic,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _filteredMembers.isEmpty
+          : _linkedFamilyMembers.isEmpty && _searchQuery.isEmpty
           ? Center(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -195,9 +327,7 @@ class _FamilyMemberScreenState extends State<FamilyMemberScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                _searchQuery.isNotEmpty
-                    ? "No members found matching '$_searchQuery'."
-                    : "You are not monitoring any family members yet.",
+                "You are not monitoring any family members yet.",
                 style: textTheme.titleMedium,
                 textAlign: TextAlign.center,
               ),
@@ -205,7 +335,29 @@ class _FamilyMemberScreenState extends State<FamilyMemberScreen> {
               ElevatedButton.icon(
                 icon: const Icon(Icons.group_add_outlined),
                 label: const Text("Link to a Family Member"),
-                onPressed: _navigateToAddFamilyMemberFlow,
+                onPressed: _navigateAndLinkPatient,
+              )
+            ],
+          ),
+        ),
+      )
+          : _filteredMembers.isEmpty && _searchQuery.isNotEmpty
+          ? Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "No members found matching '$_searchQuery'.",
+                style: textTheme.titleMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.group_add_outlined),
+                label: const Text("Link New Member"),
+                onPressed: _navigateAndLinkPatient,
               )
             ],
           ),
@@ -214,66 +366,48 @@ class _FamilyMemberScreenState extends State<FamilyMemberScreen> {
           : RefreshIndicator(
         onRefresh: _fetchLinkedFamilyMembers,
         child: ListView.builder(
-          padding: const EdgeInsets.only(top: 8), // Add padding on top of list
+          padding: const EdgeInsets.only(top: 8),
           itemCount: _filteredMembers.length,
           itemBuilder: (context, index) {
             final member = _filteredMembers[index];
             return Card(
-              margin: const EdgeInsets.symmetric(
-                  horizontal: 12.0, vertical: 6.0),
+              margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
               elevation: 2,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: Theme
-                      .of(context)
-                      .colorScheme
-                      .tertiaryContainer,
-                  foregroundColor: Theme
-                      .of(context)
-                      .colorScheme
-                      .onTertiaryContainer,
-                  backgroundImage: member.profileImageUrl != null
-                      ? NetworkImage(member.profileImageUrl!)
+                  backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+                  foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+                  backgroundImage: member.patient.profileImageUrl != null
+                      ? NetworkImage(member.patient.profileImageUrl!)
                       : null,
-                  child: member.profileImageUrl == null
-                      ? Text(member.name.isNotEmpty
-                      ? member.name[0].toUpperCase()
-                      : 'F')
+                  child: member.patient.profileImageUrl == null
+                      ? Text(member.patient.name.isNotEmpty ? member.patient.name[0].toUpperCase() : 'P')
                       : null,
                 ),
-                title: Text(member.name, style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500)),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(member.relationship,
-                        style: textTheme.bodyMedium?.copyWith(color: Theme
-                            .of(context)
-                            .colorScheme
-                            .primary)),
-                    const SizedBox(height: 2),
-                    Text(member.lastActivity, style: textTheme.bodySmall),
-                  ],
+                title: Text(
+                  member.patient.name,
+                  style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
                 ),
-                trailing: Icon(Icons.chevron_right, color: Theme
-                    .of(context)
-                    .colorScheme
-                    .outline),
+                subtitle: Text(
+                  "${member.relationship} • ${member.patient.lastActivity}",
+                  style: textTheme.bodySmall,
+                ),
+                trailing: IconButton(
+                  icon: Icon(Icons.link_off, color: Theme.of(context).colorScheme.error),
+                  tooltip: "Unlink ${member.patient.name}",
+                  onPressed: () => _unlinkPatient(member),
+                ),
                 onTap: () => _navigateToMemberDetail(member),
-                isThreeLine: true, // Allows subtitle to wrap if needed
               ),
             );
           },
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _navigateToAddFamilyMemberFlow,
+        onPressed: _navigateAndLinkPatient,
         label: const Text("Link Member"),
         icon: const Icon(Icons.group_add_outlined),
-        // backgroundColor: Theme.of(context).colorScheme.tertiary,
-        // foregroundColor: Theme.of(context).colorScheme.onTertiary,
       ),
     );
   }
