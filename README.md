@@ -1,16 +1,33 @@
-# health_guard_flutter
+# HealthGuard 🏥
 
-A new Flutter project.
+A feature-rich mobile application frontend built with **Flutter**, designed to facilitate communication between patients, doctors, and family members. This project demonstrates a modular UI architecture for tracking vital signs and managing medical records.
 
-## Getting Started
+> **Note:** This repository focuses on the **Presentation Layer (Frontend)** and UI logic. It is designed to consume RESTful APIs for backend services.
 
-This project is a starting point for a Flutter application.
+## 📱 Project Overview
 
-A few resources to get you started if this is your first Flutter project:
+HealthGuard addresses the complexity of modern healthcare monitoring by providing tailored interfaces for different stakeholders. The application implements strict role-based navigation and data visualization to make health trends accessible.
 
-- [Lab: Write your first Flutter app](https://raw.githubusercontent.com/Omemo7/Health-Guard/master/android/app/src/debug/Health_Guard_v3.8.zip)
-- [Cookbook: Useful Flutter samples](https://raw.githubusercontent.com/Omemo7/Health-Guard/master/android/app/src/debug/Health_Guard_v3.8.zip)
+## 🚀 Key Features
 
-For help getting started with Flutter development, view the
-[online documentation](https://raw.githubusercontent.com/Omemo7/Health-Guard/master/android/app/src/debug/Health_Guard_v3.8.zip), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* **Multi-Role Architecture:** Distinct UI flows and dashboards for **Patients**, **Doctors**, **Family Members**, and **Admins**.
+* **Health Data Visualization:** Integrated charting widgets (`vital_chart_widget`, `overall_health_chart`) to visualize complex medical data like heart rate or blood pressure over time.
+* **Medical Record Management:** structured models for handling Medical Reports, Monthly Summaries, and Vital Logs.
+* **Family Monitoring:** Dedicated screens for family members to track the health status of their dependents.
+* **Authentication Flow:** Complete UI implementation for Login and Registration workflows managed via a dedicated `AuthService`.
+
+## 🏗 Architecture & Design
+
+The codebase follows a scalable **Folder-by-Feature** structure to ensure maintainability:
+
+* **Screens:** Segregated UI logic for each user role (Admin, Doctor, Patient, Family).
+* **Widgets:** Reusable UI components, including custom chart implementations for health metrics.
+* **Models:** Strongly typed Data Transfer Objects (DTOs) for robust data handling (e.g., `MedicalReport`, `VitalDataPoint`).
+* **Services:** Abstraction layer for future backend integration (Authentication, API calls).
+
+## 🛠 Tech Stack
+
+* **Framework:** Flutter
+* **Language:** Dart
+* **Architecture:** Component-Based / Modular
+* **Visualization:** Custom Charting Widgets
